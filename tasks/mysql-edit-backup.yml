@@ -1,0 +1,17 @@
+---
+
+- name: "Create source mysqldump on MysQL edit host"
+  become: "yes"
+  mysql_db:
+    name: "{{ atom_replication_edit_db_name }}"
+    single_transaction: "yes"
+    ignore_tables: "{{ atom_replication_ro_backup_tables }}"
+    dump_extra_args: "--add-drop-table --skip-dump-date"
+    state: "dump"
+    target: "{{ atom_replication_edit_mysql_snapshots_dir }}/mysql-edit-snapshot.sql.gz"
+
+- name: "Fetch MySQL backup on ansible host"
+  fetch:
+    src: "{{ atom_replication_edit_mysql_snapshots_dir }}/mysql-edit-snapshot.sql.gz"
+    dest: "{{ atom_replication_ansible_host_snapshots_dir }}/mysql-edit-snapshot.sql.gz"
+    flat: "true"

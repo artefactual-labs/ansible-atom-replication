@@ -1,0 +1,38 @@
+---
+# All the following tasks are expecting that:
+#    - target is the AtoM read-only host
+#    - delegate_to is the AtoM edit host
+
+# source -> atom_replication_edit_atom_host:{{ atom_replication_edit_uploads_path }
+# destination -> atom_replication_ro_atom_host:{{ atom_replication_ro_uploads_path }}
+
+- name: "Synchronice uploads"
+  become: true
+  # ansible >= 2.9 needs become_flags when using sudo with synchronize
+  become_flags: "-E"
+  synchronize:
+    src: "{{ atom_replication_edit_uploads_path }}"
+    dest: "{{ atom_replication_ro_uploads_path }}"
+    recursive: "yes"
+    delete: "yes"
+    group: "yes"
+    perms: "yes"
+    owner: "yes"
+  delegate_to: "{{ atom_replication_edit_atom_host }}"
+  when: "atom_replication_synchronize_uploads_dir|bool"
+
+
+- name: "Synchronice downloads"
+  become: true
+  # ansible >= 2.9 needs become_flags when using sudo with synchronize
+  become_flags: "-E"
+  synchronize:
+    src: "{{ atom_replication_edit_downloads_path }}"
+    dest: "{{ atom_replication_ro_downloads_path }}"
+    recursive: "yes"
+    delete: "yes"
+    group: "yes"
+    perms: "yes"
+    owner: "yes"
+  delegate_to: "{{ atom_replication_edit_atom_host }}"
+  when: "atom_replication_synchronize_downloads_dir|bool"

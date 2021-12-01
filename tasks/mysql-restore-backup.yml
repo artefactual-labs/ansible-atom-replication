@@ -1,0 +1,39 @@
+---
+
+- name: "Copy MySQL edit backup from ansible host to MySQL read-only host"
+  copy:
+    src: "{{ atom_replication_ansible_host_snapshots_dir }}/mysql-edit-snapshot.sql.gz"
+    dest: "{{ atom_replication_ro_mysql_snapshots_dir }}/mysql-edit-snapshot.sql.gz"
+    owner: "{{ atom_replication_snapshot_user }}"
+    group: "{{ atom_replication_snapshot_group }}"
+    flat: "true"
+
+- name: "Drop read-only database on MySQL read-only host"
+  become: "yes"
+  mysql_db:
+    name: "{{ atom_replication_ro_db_name }}"
+    state: "absent"
+
+- name: "Create read-only database on MySQL read-only host"
+  become: "yes"
+  mysql_db:
+    name: "{{ atom_replication_ro_db_name }}"
+    state: "present"
+    collation: "{{ mysql_collation | default('utf8mb4_0900_ai_ci') }}"
+    encoding: "{{ mysql_encoding | default('utf8mb4') }}"
+
+- name: "Import edit database from backup"
+  become: "yes"
+  mysql_db:
+    name: "{{ atom_replication_ro_db_name }}"
+    state: "import"
+    target: "{{ atom_replication_ro_mysql_snapshots_dir }}/mysql-edit-snapshot.sql.gz"
+
+- name: "Import read-only tables previously saved"
+  become: "yes"
+  mysql_db:
+    name: "{{ atom_replication_ro_db_name }}"
+    state: "import"
+    target: "{{ atom_replication_ro_mysql_snapshots_dir }}/mysql_ro_table_{{ item }}.sql"
+  loop: "{{ atom_replication_ro_backup_tables }}"
+
