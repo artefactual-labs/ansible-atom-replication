@@ -95,7 +95,7 @@ atom_replication_ro_uploads_path: "{{ atom_replication_ro_path }}/uploads/"
 atom_replication_synchronize_uploads_dir: False
 atom_replication_synchronize_downloads_dir: False
 
-# AtoM worker, memcache and php-fpm service names
+# AtoM worker, varnish, memcache and php-fpm service names
 atom_replication_edit_worker_service: "atom-worker-edit"
 atom_replication_ro_worker_service: "atom-worker-ro"
 
@@ -104,6 +104,8 @@ atom_replication_ro_php_fpm_service: "{{ atom_replication_edit_php_fpm_service }
 
 atom_replication_edit_memcache_service: "memcached"
 atom_replication_ro_memcache_service: "{{ atom_replication_edit_memcache_service }}"
+
+atom_replication_varnish_service: "varnish"
 
 # Nginx users
 atom_replication_edit_nginx_user: "www-data"

@@ -5,7 +5,8 @@
   mysql_db:
     name: "{{ atom_replication_edit_db_name }}"
     single_transaction: "yes"
-    ignore_tables: "{{ atom_replication_ro_backup_tables }}"
+    # Appending database name to the atom_replication_ro_backup_tables list
+    ignore_tables: "{{ [atom_replication_edit_db_name] | product(atom_replication_ro_backup_tables) | map('join','.') | list }}"
     dump_extra_args: "--add-drop-table --skip-dump-date"
     state: "dump"
     target: "{{ atom_replication_edit_mysql_snapshots_dir }}/mysql-edit-snapshot.sql.gz"
