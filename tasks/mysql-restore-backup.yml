@@ -6,7 +6,6 @@
     dest: "{{ atom_replication_ro_mysql_snapshots_dir }}/mysql-edit-snapshot.sql.gz"
     owner: "{{ atom_replication_snapshot_user }}"
     group: "{{ atom_replication_snapshot_group }}"
-    flat: "true"
 
 - name: "Drop read-only database on MySQL read-only host"
   become: "yes"

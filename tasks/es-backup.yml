@@ -9,7 +9,7 @@
   file:
     path: "{{ atom_replication_edit_es_backup_repo_path }}"
     state: "directory"
-    mode: "0755"
+    mode: "0775"
     owner: "{{ atom_replication_snapshot_user }}"
     group: "{{ atom_replication_snapshot_group }}"
 
@@ -31,5 +31,5 @@
 - name: "Fetch ES backup on ansible host"
   fetch:
     src: "{{ atom_replication_edit_es_snapshots_dir }}/es-snapshot.tgz"
-    dest: "{{ atom_replication_ansible_host_snapshots_dir/es-snapshot.tgz"
+    dest: "{{ atom_replication_ansible_host_snapshots_dir }}/es-snapshot.tgz"
     flat: "true"

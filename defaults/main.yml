@@ -20,6 +20,9 @@ atom_replication_edit_es_ansible_host: "{{ atom_replication_edit_atom_ansible_us
 atom_replication_ro_mysql_ansible_host: "{{ atom_replication_edit_atom_ansible_user }}"
 atom_replication_edit_mysql_ansible_host: "{{ atom_replication_edit_atom_ansible_user }}"
 
+# Needed to rsync uploads and downloads from AtoM edit host to AtoM read-only host
+atom_replication_edit_ssh_pubkey_file: "/home/{{ atom_replication_edit_atom_ansible_user }}/.ssh/id_rsa"
+
 # Temporary Directories
 
 atom_replication_edit_mysql_snapshots_dir: "/var/artefactual/replication-snapshots"
@@ -28,6 +31,7 @@ atom_replication_ro_mysql_snapshots_dir: "/var/artefactual/replication-snapshots
 atom_replication_edit_es_snapshots_dir: "/var/artefactual/replication-snapshots"
 atom_replication_ro_es_snapshots_dir: "/var/artefactual/replication-snapshots"
 
+atom_replication_ansible_host_snapshots_dir: "./replication"
 
 # Install role in remote server (Optional)
 atom_replication_ansible_remote_server_enabled: False

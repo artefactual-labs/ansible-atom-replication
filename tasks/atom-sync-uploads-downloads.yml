@@ -6,13 +6,26 @@
 # source -> atom_replication_edit_atom_host:{{ atom_replication_edit_uploads_path }
 # destination -> atom_replication_ro_atom_host:{{ atom_replication_ro_uploads_path }}
 
+
+- name: "Change uploads dir permissions to sync data on read-only host"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_ro_uploads_path }}"
+    state: "directory"
+    recurse: "yes"
+    owner: "{{ atom_replication_ro_atom_ansible_user }}"
+  delegate_to: "{{ atom_replication_ro_atom_host }}"
+  when: "atom_replication_synchronize_uploads_dir|bool"
+
 - name: "Synchronice uploads"
-  become: true
+  become: yes
+  become_method: sudo
   # ansible >= 2.9 needs become_flags when using sudo with synchronize
-  become_flags: "-E"
+  become_flags: "-HE"
   synchronize:
     src: "{{ atom_replication_edit_uploads_path }}"
-    dest: "{{ atom_replication_ro_uploads_path }}"
+    dest: "{{ atom_replication_ro_atom_ansible_user }}@{{ atom_replication_ro_atom_host_fqdn | default(hostvars[atom_replication_ro_atom_host]['ansible_default_ipv4']['address']) }}:{{ atom_replication_ro_uploads_path }}"
+    rsync_opts: "-az --rsh=ssh -e 'ssh -i {{ atom_replication_edit_ssh_pubkey_file }} -o StrictHostKeyChecking=no'"
     recursive: "yes"
     delete: "yes"
     group: "yes"
@@ -21,18 +34,50 @@
   delegate_to: "{{ atom_replication_edit_atom_host }}"
   when: "atom_replication_synchronize_uploads_dir|bool"
 
+- name: "Restore uploads dir permissions on read-only host"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_ro_uploads_path }}"
+    state: "directory"
+    recurse: "yes"
+    owner: "{{ atom_replication_ro_nginx_user }}"
+  delegate_to: "{{ atom_replication_ro_atom_host }}"
+  when: "atom_replication_synchronize_uploads_dir|bool"
+
+
+- name: "Change downloads dir permissions to sync data on read-only host"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_ro_downloads_path }}"
+    state: "directory"
+    recurse: "yes"
+    owner: "{{ atom_replication_ro_atom_ansible_user }}"
+  delegate_to: "{{ atom_replication_ro_atom_host }}"
+  when: "atom_replication_synchronize_downloads_dir|bool"
 
 - name: "Synchronice downloads"
-  become: true
+  become: yes
+  become_method: sudo
   # ansible >= 2.9 needs become_flags when using sudo with synchronize
-  become_flags: "-E"
+  become_flags: "-HE"
   synchronize:
     src: "{{ atom_replication_edit_downloads_path }}"
-    dest: "{{ atom_replication_ro_downloads_path }}"
+    dest: "{{ atom_replication_ro_atom_ansible_user }}@{{ atom_replication_ro_atom_host_fqdn | default(hostvars[atom_replication_ro_atom_host]['ansible_default_ipv4']['address']) }}:{{ atom_replication_ro_downloads_path }}"
+    rsync_opts: "-az --rsh=ssh -e 'ssh -i {{ atom_replication_edit_ssh_pubkey_file }} -o StrictHostKeyChecking=no'"
     recursive: "yes"
     delete: "yes"
     group: "yes"
     perms: "yes"
     owner: "yes"
   delegate_to: "{{ atom_replication_edit_atom_host }}"
+  when: "atom_replication_synchronize_downloads_dir|bool"
+
+- name: "Restore downloads dir permissions on read-only host"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_ro_downloads_path }}"
+    state: "directory"
+    recurse: "yes"
+    owner: "{{ atom_replication_ro_nginx_user }}"
+  delegate_to: "{{ atom_replication_ro_atom_host }}"
   when: "atom_replication_synchronize_downloads_dir|bool"

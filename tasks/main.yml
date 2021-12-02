@@ -37,14 +37,14 @@
 - include: "mysql-edit-backup.yml"
   when:
     - inventory_hostname == atom_replication_edit_mysql_host|string 
-    - atom_replication_edit_mysql_host|string != atom_replication_mysql_host|string
+    - atom_replication_edit_mysql_host|string != atom_replication_ro_mysql_host|string
   tags:
     - "mysql-edit-backup"
 
 - include: "mysql-db-copy.yml"
   when:
     - inventory_hostname == atom_replication_edit_mysql_host|string 
-    - atom_replication_edit_mysql_host|string == atom_replication_mysql_host|string
+    - atom_replication_edit_mysql_host|string == atom_replication_ro_mysql_host|string
   tags:
     - "mysql-edit-backup"
 

@@ -2,11 +2,10 @@
 
 - name: "Copy ES backup from ansible host to read-only ES server"
   copy:
-    src: "{{ atom_replication_ansible_host_snapshots_dir/es-snapshot.tgz"
+    src: "{{ atom_replication_ansible_host_snapshots_dir }}/es-snapshot.tgz"
     dest: "{{ atom_replication_ro_es_snapshots_dir }}/es-snapshot.tgz"
     owner: "{{ atom_replication_snapshot_user }}"
     group: "{{ atom_replication_snapshot_group }}"
-  flat: "true"
 
 - name: "Delete ES backup repo directory on ES read-only server"
   file:
@@ -17,7 +16,7 @@
   file:
     path: "{{ atom_replication_ro_es_backup_repo_path }}"
     state: "directory"
-    mode: "0755"
+    mode: "0775"
     owner: "{{ atom_replication_snapshot_user }}"
     group: "{{ atom_replication_snapshot_group }}"
 
