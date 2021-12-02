@@ -3,17 +3,23 @@
 
 ## Elasticsearch tasks
 - include: "es-backup.yml"
-  when: "atom_replication_edit_es_host|string != atom_replication_ro_es_host|string"
+  when:
+    - inventory_hostname == atom_replication_edit_es_host|string
+    - atom_replication_edit_es_host|string != atom_replication_ro_es_host|string
   tags:
     - "es-ro-backup"
 
 - include: "es-clone-index.yml"
-  when: "atom_replication_edit_es_host|string == atom_replication_ro_es_host|string"
+  when:
+    - inventory_hostname == atom_replication_edit_es_host|string 
+    - atom_replication_edit_es_host|string == atom_replication_ro_es_host|string
   tags:
     - "es-ro-backup"
 
 - include: "es-restore-backup.yml"
-  when: "atom_replication_edit_es_host|string != atom_replication_ro_es_host|string"
+  when:
+    - inventory_hostname == atom_replication_ro_es_host|string 
+    - atom_replication_edit_es_host|string != atom_replication_ro_es_host|string
   tags:
     - "es-ro-restore"
 
@@ -23,21 +29,29 @@
 
 # To take ro backups of some tables: (atom_replication_ro_backup_tables)
 - include: "mysql-ro-backup-tables.yml"
+  when:
+    - inventory_hostname == atom_replication_ro_mysql_host|string
   tags:
     - "mysql-ro-backup"
 
 - include: "mysql-edit-backup.yml"
-  when: "atom_replication_edit_mysql_host|string != atom_replication_mysql_es_host|string"
+  when:
+    - inventory_hostname == atom_replication_edit_mysql_host|string 
+    - atom_replication_edit_mysql_host|string != atom_replication_mysql_host|string
   tags:
     - "mysql-edit-backup"
 
 - include: "mysql-db-copy.yml"
-  when: "atom_replication_edit_mysql_host|string == atom_replication_mysql_es_host|string"
+  when:
+    - inventory_hostname == atom_replication_edit_mysql_host|string 
+    - atom_replication_edit_mysql_host|string == atom_replication_mysql_host|string
   tags:
     - "mysql-edit-backup"
 
 # For all scenarios
 - include: "mysql-restore-backup.yml"
+  when:
+    - inventory_hostname == atom_replication_ro_mysql_host|string
   tags:
     - "mysql-restore-backup"
 
@@ -46,20 +60,26 @@
 ## Synchronize AtoM uploads and downloads
 
 - include: "atom-sync-uploads-downloads.yml"
-  when: "atom_replication_synchronize_uploads_dir|bool or atom_replication_synchronize_downloads_dir|bool" 
+  when:
+    - inventory_hostname == atom_replication_ro_atom_host|string
+    - atom_replication_synchronize_uploads_dir|bool or atom_replication_synchronize_downloads_dir|bool
   tags:
     - "atom-sync-upload-downloads"
 
 ## Replication Post Actions
 
 - include: "atom-sync-baseurl.yml"
-  when: "atom_replication_synchronize_baseurl|bool"
+  when:
+    - inventory_hostname == atom_replication_ro_atom_host|string
+    - atom_replication_synchronize_baseurl|bool
   tags:
     - "atom-sync-baseurl"
 
 - include: "atom-delete-clipboard-obsolete-items.yml"
-  when: "atom_replication_clipboard_delete_obsolete_items|bool"
-    tags:
+  when:
+    - inventory_hostname == atom_replication_ro_atom_host|string
+    - atom_replication_clipboard_delete_obsolete_items|bool
+  tags:
     - "atom-clipboard-delete-obsolete-items"
 
 #- include: "atom-delete-old-records.yml"
