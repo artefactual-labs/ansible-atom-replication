@@ -1,7 +1,12 @@
 ---
 
 - name: "Dump read-only tables that will not be replicated on MySQL read-only server"
-  shell: "mysqldump --add-drop-table --single-transaction --skip-dump-date  {{ item }} {{ atom_replication_ro_db_name }} > {{ atom_replication_ro_mysql_snapshots_dir }}/mysql_ro_table_{{ item }}.sql"
-  register: "shell_result"
-  failed_when: "shell_result.stderr != ''"
+  become: "yes"
+  mysql_db:
+    name: "{{ atom_replication_ro_db_name }}"
+    single_transaction: "yes"
+    dump_extra_args: "--add-drop-table --skip-dump-date --tables {{ item }}"
+    state: "dump"
+    target: "{{ atom_replication_ro_mysql_snapshots_dir }}/mysql_ro_table_{{ item }}.sql"
   loop: "{{ atom_replication_ro_backup_tables }}"
+
