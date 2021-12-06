@@ -7,20 +7,6 @@
     owner: "{{ atom_replication_snapshot_user }}"
     group: "{{ atom_replication_snapshot_group }}"
 
-- name: "Drop read-only database on MySQL read-only host"
-  become: "yes"
-  mysql_db:
-    name: "{{ atom_replication_ro_db_name }}"
-    state: "absent"
-
-- name: "Create read-only database on MySQL read-only host"
-  become: "yes"
-  mysql_db:
-    name: "{{ atom_replication_ro_db_name }}"
-    state: "present"
-    collation: "{{ mysql_collation | default('utf8mb4_0900_ai_ci') }}"
-    encoding: "{{ mysql_encoding | default('utf8mb4') }}"
-
 - name: "Import edit database from backup"
   become: "yes"
   mysql_db:
