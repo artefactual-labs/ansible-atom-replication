@@ -37,7 +37,7 @@ atom_replication_ro_mysql_snapshots_dir: "/var/artefactual/replication-snapshots
 atom_replication_edit_es_snapshots_dir: "/var/artefactual/replication-snapshots"
 atom_replication_ro_es_snapshots_dir: "/var/artefactual/replication-snapshots"
 
-atom_replication_ansible_host_snapshots_dir: "./replication"
+atom_replication_ansible_host_snapshots_dir: "{{ atom_replication_ansible_remote_path }}/replication"
 
 # Install role in remote server (Optional).
 # Use "install-replication" tag to deploy the replication script in the remote server

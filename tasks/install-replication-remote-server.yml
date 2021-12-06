@@ -74,10 +74,12 @@
     owner: "{{ atom_replication_ansible_remote_user }}"
     mode: "0600"
     line: "StrictHostKeyChecking no"
+
 # Copy rsa key to:
 # - ES hosts
 # - atom hosts
 # - MySQL hosts
+
 - name: "Authorize ansible host rsa key on AtoM edit host"
   authorized_key:
     user: "{{ atom_replication_edit_atom_ansible_user }}"
@@ -149,7 +151,52 @@
     - atom_replication_edit_atom_host|string != atom_replication_ansible_remote_server|string
   #End block
 
-# Create TMP dirs
+# Create TMP dirs on ansible, ES and MySQL hosts
+
+- name: "Create TMP directory on ansible host"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_ansible_host_snapshots_dir }}"
+    state: "directory"
+    mode: "0755"
+    owner: "{{ atom_replication_ansible_remote_user }}"
+
+- name: "Create TMP directory on edit ES host"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_edit_es_snapshots_dir }}"
+    state: "directory"
+    mode: "0755"
+    owner: "{{ atom_replication_edit_es_ansible_user }}"
+  delegate_to: "{{ atom_replication_edit_es_host }}"
+
+- name: "Create TMP directory on read-only ES host"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_ro_es_snapshots_dir }}"
+    state: "directory"
+    mode: "0755"
+    owner: "{{ atom_replication_ro_es_ansible_user }}"
+  delegate_to: "{{ atom_replication_ro_es_host }}"
+
+- name: "Create TMP directory on edit MySQL host"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_edit_mysql_snapshots_dir }}"
+    state: "directory"
+    mode: "0755"
+    owner: "{{ atom_replication_edit_mysql_ansible_user }}"
+  delegate_to: "{{ atom_replication_edit_mysql_host }}"
+
+- name: "Create TMP directory on read-only MySQL host"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_ro_mysql_snapshots_dir }}"
+    state: "directory"
+    mode: "0755"
+    owner: "{{ atom_replication_ro_mysql_ansible_user }}"
+  delegate_to: "{{ atom_replication_ro_mysql_host }}"
+
 
 # Download role with ansible-galaxy
 - name: "Update roles with ansible-galaxy on ansible host"
