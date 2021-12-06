@@ -1,11 +1,16 @@
 ---
 # defaults file for atom-replication-role
 
-# AtoM servers
+# Servers (Ansible host field in Ansible inventory)
 atom_replication_edit_atom_host: "localhost"
 atom_replication_ro_atom_host: "localhost"
+atom_replication_edit_mysql_host: "localhost"
+atom_replication_ro_mysql_host: "localhost"
+atom_replication_edit_es_host: "localhost"
+atom_replication_ro_es_host: "localhost"
 
-# Ansible ssh users and IP addresses/hostnames
+
+# Ansible ssh IP addresses/hostnames (Ansible ssh host in Ansible inventory)
 atom_replication_edit_atom_ansible_user: "artefactual"
 atom_replication_ro_atom_ansible_user: "{{ atom_replication_edit_atom_ansible_user }}"
 atom_replication_ro_es_ansible_user: "{{ atom_replication_edit_atom_ansible_user }}"
@@ -13,15 +18,16 @@ atom_replication_edit_es_ansible_user: "{{ atom_replication_edit_atom_ansible_us
 atom_replication_ro_mysql_ansible_user: "{{ atom_replication_edit_atom_ansible_user }}"
 atom_replication_edit_mysql_ansible_user: "{{ atom_replication_edit_atom_ansible_user }}"
 
-# Needed to rsync uploads and downloads from AtoM edit host to AtoM read-only host
-atom_replication_edit_ssh_pubkey_file: "/home/{{ atom_replication_edit_atom_ansible_user }}/.ssh/id_rsa"
-
+# Ansible ssh usernames (Ansible ssh user in Ansible inventory)
 atom_replication_edit_atom_ansible_host: "localhost"
 atom_replication_ro_atom_ansible_host: "{{ atom_replication_edit_atom_ansible_user }}"
 atom_replication_ro_es_ansible_host: "{{ atom_replication_edit_atom_ansible_user }}"
 atom_replication_edit_es_ansible_host: "{{ atom_replication_edit_atom_ansible_user }}"
 atom_replication_ro_mysql_ansible_host: "{{ atom_replication_edit_atom_ansible_user }}"
 atom_replication_edit_mysql_ansible_host: "{{ atom_replication_edit_atom_ansible_user }}"
+
+# Needed to rsync uploads and downloads from AtoM edit host to AtoM read-only host
+atom_replication_edit_ssh_pubkey_file: "/home/{{ atom_replication_edit_atom_ansible_user }}/.ssh/id_rsa"
 
 # Temporary Directories
 
@@ -47,8 +53,6 @@ atom_replication_ansible_remote_cron_month: "*"
 atom_replication_ansible_remote_cron_weekday: "0"
 
 # Elasticsearch settings:
-atom_replication_edit_es_host: "localhost"
-atom_replication_ro_es_host: "localhost"
 
 # Assuming all ES servers are going to use the same port
 atom_replication_es_port: "9200"
@@ -65,9 +69,7 @@ atom_replication_es_snapshot_name: "backup-repo"
 atom_replication_es_backup_repo_path: "/var/lib/elasticsearch/backup-repo"
 
 # MySQL settings
-atom_replication_edit_mysql_host: "localhost"
 atom_replication_edit_db_name: "atom-edit"
-atom_replication_ro_mysql_host: "localhost"
 atom_replication_ro_db_name: "atom-ro"
 
 atom_replication_ro_backup_tables: []

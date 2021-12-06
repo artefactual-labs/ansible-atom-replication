@@ -54,11 +54,105 @@
     src: "hosts.j2"
     dest: "{{ atom_replication_ansible_remote_path }}/hosts"
 
-# Create rsa key
+- name: "Create config.yml file on ansible host"
+  template:
+    src: "templates/config.yml.j2"
+    dest: "{{ atom_replication_ansible_remote_path }}/config.yml"
 
+# Create rsa key
+- name: "Create rsa for user {{ atom_replication_ansible_remote_user }} on ansible host"
+  user:
+    name: "{{ atom_replication_ansible_remote_user }}"
+    generate_ssh_key: "yes"
+    ssh_key_file: ".ssh/id_rsa"
+  register: "__ansible_host_ssh_key"
+
+- name: "Use StrictHostKeyChecking=no ssh option for {{ atom_replication_ansible_remote_user }} on ansible host"
+  lineinfile:
+    create: "yes"
+    path: ".ssh/config"
+    owner: "{{ atom_replication_ansible_remote_user }}"
+    mode: "0600"
+    line: "StrictHostKeyChecking no"
 # Copy rsa key to:
 # - ES hosts
 # - atom hosts
 # - MySQL hosts
+- name: "Authorize ansible host rsa key on AtoM edit host"
+  authorized_key:
+    user: "{{ atom_replication_edit_atom_ansible_user }}"
+    state: "present"
+    key: "{{ __ansible_host_ssh_key.ssh_public_key }}"
+  delegate_to: "{{ atom_replication_edit_atom_host }}"
+
+- name: "Authorize ansible host rsa key on AtoM read-only host"
+  authorized_key:
+    user: "{{ atom_replication_ro_atom_ansible_user }}"
+    state: "present"
+    key: "{{ __ansible_host_ssh_key.ssh_public_key }}"
+  delegate_to: "{{ atom_replication_ro_atom_host }}"
+
+- name: "Authorize ansible host rsa key on ES edit host"
+  authorized_key:
+    user: "{{ atom_replication_edit_es_ansible_user }}"
+    state: "present"
+    key: "{{ __ansible_host_ssh_key.ssh_public_key }}"
+  delegate_to: "{{ atom_replication_edit_es_host }}"
+
+- name: "Authorize ansible host rsa key on ES read-only host"
+  authorized_key:
+    user: "{{ atom_replication_ro_es_ansible_user }}"
+    state: "present"
+    key: "{{ __ansible_host_ssh_key.ssh_public_key }}"
+  delegate_to: "{{ atom_replication_ro_es_host }}"
+
+- name: "Authorize ansible host rsa key on MySQL edit host"
+  authorized_key:
+    user: "{{ atom_replication_edit_mysql_ansible_user }}"
+    state: "present"
+    key: "{{ __ansible_host_ssh_key.ssh_public_key }}"
+  delegate_to: "{{ atom_replication_edit_mysql_host }}"
+
+- name: "Authorize ansible host rsa key on MySQL read-only host"
+  authorized_key:
+    user: "{{ atom_replication_ro_mysql_ansible_user }}"
+    state: "present"
+    key: "{{ __ansible_host_ssh_key.ssh_public_key }}"
+  delegate_to: "{{ atom_replication_ro_mysql_host }}"
+
+# When using synchronize of uploads or downloads dir, the AtoM edit server must ssh the read-only one without password
+- name: "Allow ssh without passwords beetween AtoM servers"
+  block:
+    - name: "Create rsa for user {{ atom_replication_edit_atom_ansible_user }} on adit AtoM host"
+      user:
+        name: "{{ atom_replication_edit_atom_ansible_user }}"
+        generate_ssh_key: "yes"
+        ssh_key_file: ".ssh/id_rsa"
+      register: "__edit_atom_ssh_key"
+      delegate_to: "{{ atom_replication_edit_atom_host }}"
+    - name: "Use StrictHostKeyChecking=no ssh option for {{ atom_replication_edit_atom_ansible_user }} on adit AtoM host"
+      lineinfile:
+        create: "yes"
+        path: ".ssh/config"
+        owner: "{{ atom_replication_edit_atom_ansible_user }}"
+        mode: "0600"
+        line: "StrictHostKeyChecking no"
+        delegate_to: "{{ atom_replication_edit_atom_host }}"
+    - name: "Authorize iAtoM edit rsa key on AtoM read-only host"
+      authorized_key:
+        user: "{{ atom_replication_ro_atom_ansible_user }}"
+        state: "present"
+        key: "{{ __edit_atom_ssh_key.ssh_public_key }}"
+      delegate_to: "{{ atom_replication_ro_atom_host }}"
+  when:
+    - atom_replication_synchronize_uploads_dir|bool or atom_replication_synchronize_downloads_dir|bool
+    - atom_replication_edit_atom_host|string != atom_replication_ansible_remote_server|string
+  #End block
 
 # Create TMP dirs
+
+# Download role with ansible-galaxy
+- name: "Update roles with ansible-galaxy on ansible host"
+  command:  venv-ansible/bin/ansible-galaxy install -f -p roles/ -r requirements.yml
+  args:
+     chdir: "{{ atom_replication_ansible_remote_path }}"
