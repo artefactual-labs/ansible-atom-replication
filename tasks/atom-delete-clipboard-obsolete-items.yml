@@ -7,3 +7,4 @@
       DELETE clipboard_save_item FROM clipboard_save_item
       LEFT JOIN slug ON slug.slug = clipboard_save_item.slug
       WHERE slug.object_id IS NULL
+

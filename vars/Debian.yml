@@ -1,0 +1,5 @@
+---
+
+atom_replication_venv_packages:
+  - "python3-virtualenv"
+  - "virtualenv"

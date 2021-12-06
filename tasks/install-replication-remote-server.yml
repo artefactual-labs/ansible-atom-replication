@@ -1,0 +1,64 @@
+---
+
+- name: "Install virtualenv packages on ansible host"
+  become: "yes"
+  package:
+    name: "{{ atom_replication_venv_packages }}"
+    state: "present"
+
+- name: "Create ansible virtualenv on ansible host"
+  become: "no"
+  pip:
+    name: "ansible"
+    virtualenv: "{{ atom_replication_ansible_remote_path }}/venv-ansible"
+    virtualenv_python: "python3"
+
+- name: "Copy ansible files to replication directory on ansible host"
+  copy:
+    src: "{{ item }}"
+    dest: "{{ atom_replication_ansible_remote_path }}/{{ item }}"
+  loop:
+    - "requirements.yml"
+    - "ansible.cfg"
+    - "replication.yml"
+
+# Create dictionary with items: { ansible_host, ansible_ssh_hostname, ansible_ssh_username } for servers:
+# - ES hosts
+# - AtoM hosts
+# - MySQL hosts
+# - Ansible remote hosts
+
+- name: "Create dictionary with items: { ansible_host, ansible_ssh_hostname, ansible_ssh_username } for all hosts"
+  set_fact:
+    __dict_hosts: "{{ __dict_hosts | default([]) + [{ 'ansible_host' : item.host, 'ansible_ssh_hostname' : item.ssh_hostname, 'ansible_ssh_username' : item.ssh_username }] }}"
+  with_items:
+    - { 'host': '{{ atom_replication_edit_atom_host }}', 'ssh_hostname': '{{ atom_replication_edit_atom_ansible_host }}', 'ssh_username': '{{ atom_replication_edit_atom_ansible_user }}' }
+    - { 'host': '{{ atom_replication_ro_atom_host }}', 'ssh_hostname': '{{ atom_replication_ro_atom_ansible_host }}', 'ssh_username': '{{ atom_replication_ro_atom_ansible_user }}' }
+    - { 'host': '{{ atom_replication_edit_es_host }}', 'ssh_hostname': '{{ atom_replication_edit_es_ansible_host }}', 'ssh_username': '{{ atom_replication_edit_es_ansible_user }}' }
+    - { 'host': '{{ atom_replication_ro_es_host }}', 'ssh_hostname': '{{ atom_replication_ro_es_ansible_host }}', 'ssh_username': '{{ atom_replication_ro_es_ansible_user }}' }
+    - { 'host': '{{ atom_replication_edit_mysql_host }}', 'ssh_hostname': '{{ atom_replication_edit_mysql_ansible_host }}', 'ssh_username': '{{ atom_replication_edit_mysql_ansible_user }}' }
+    - { 'host': '{{ atom_replication_ro_mysql_host }}', 'ssh_hostname': '{{ atom_replication_ro_mysql_ansible_host }}', 'ssh_username': '{{ atom_replication_ro_mysql_ansible_user }}' }
+
+# Delete duplicate items in the previous dictionary
+
+- name: "Delete duplicate items in the previous dictionary"
+  set_fact:
+    __dict_hosts: "{{ __dict_hosts | unique }}"
+
+# Create files with templates:
+# - config.yml  
+# - hosts 
+
+- name: "Create ansible inventory file on ansible host"
+  template:
+    src: "hosts.j2"
+    dest: "{{ atom_replication_ansible_remote_path }}/hosts"
+
+# Create rsa key
+
+# Copy rsa key to:
+# - ES hosts
+# - atom hosts
+# - MySQL hosts
+
+# Create TMP dirs

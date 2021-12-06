@@ -13,15 +13,15 @@ atom_replication_edit_es_ansible_user: "{{ atom_replication_edit_atom_ansible_us
 atom_replication_ro_mysql_ansible_user: "{{ atom_replication_edit_atom_ansible_user }}"
 atom_replication_edit_mysql_ansible_user: "{{ atom_replication_edit_atom_ansible_user }}"
 
+# Needed to rsync uploads and downloads from AtoM edit host to AtoM read-only host
+atom_replication_edit_ssh_pubkey_file: "/home/{{ atom_replication_edit_atom_ansible_user }}/.ssh/id_rsa"
+
 atom_replication_edit_atom_ansible_host: "localhost"
 atom_replication_ro_atom_ansible_host: "{{ atom_replication_edit_atom_ansible_user }}"
 atom_replication_ro_es_ansible_host: "{{ atom_replication_edit_atom_ansible_user }}"
 atom_replication_edit_es_ansible_host: "{{ atom_replication_edit_atom_ansible_user }}"
 atom_replication_ro_mysql_ansible_host: "{{ atom_replication_edit_atom_ansible_user }}"
 atom_replication_edit_mysql_ansible_host: "{{ atom_replication_edit_atom_ansible_user }}"
-
-# Needed to rsync uploads and downloads from AtoM edit host to AtoM read-only host
-atom_replication_edit_ssh_pubkey_file: "/home/{{ atom_replication_edit_atom_ansible_user }}/.ssh/id_rsa"
 
 # Temporary Directories
 
@@ -33,9 +33,9 @@ atom_replication_ro_es_snapshots_dir: "/var/artefactual/replication-snapshots"
 
 atom_replication_ansible_host_snapshots_dir: "./replication"
 
-# Install role in remote server (Optional)
-atom_replication_ansible_remote_server_enabled: False
-atom_replication_ansible_remote_server: "{{ atom_replication_edit_atom_server }}"
+# Install role in remote server (Optional).
+# Use "install-replication" tag to deploy the replication script in the remote server
+atom_replication_ansible_remote_server: "{{ atom_replication_edit_atom_host }}"
 atom_replication_ansible_remote_user: "artefactual"
 atom_replication_ansible_remote_path: "/home/artefactual/atom-replication"
 
@@ -49,8 +49,9 @@ atom_replication_ansible_remote_cron_weekday: "0"
 # Elasticsearch settings:
 atom_replication_edit_es_host: "localhost"
 atom_replication_ro_es_host: "localhost"
-atom_replication_edit_es_port: "9200"
-atom_replication_ro_es_port: "9200"
+
+# Assuming all ES servers are going to use the same port
+atom_replication_es_port: "9200"
 
 atom_replication_snapshot_user: "{{ atom_replication_edit_es_ansible_user }}"
 atom_replication_snapshot_group: "elasticsearch"
@@ -61,18 +62,13 @@ atom_replication_ro_es_index: "atom-ro"
 atom_replication_es_repo_name: "backup-repo"
 atom_replication_es_snapshot_name: "backup-repo"
 
-atom_replication_edit_es_backup_repo_path: "/var/lib/elasticsearch/backup-repo"
-atom_replication_ro_es_backup_repo_path: "/var/lib/elasticsearch/backup-repo"
+atom_replication_es_backup_repo_path: "/var/lib/elasticsearch/backup-repo"
 
 # MySQL settings
 atom_replication_edit_mysql_host: "localhost"
 atom_replication_edit_db_name: "atom-edit"
-atom_replication_edit_db_user: "atom"
-atom_replication_edit_db_password: "demo"
 atom_replication_ro_mysql_host: "localhost"
 atom_replication_ro_db_name: "atom-ro"
-atom_replication_ro_db_user: "atom"
-atom_replication_ro_db_password: "demo"
 
 atom_replication_ro_backup_tables: []
 # atom_replication_ro_backup_tables:
@@ -95,7 +91,7 @@ atom_replication_ro_uploads_path: "{{ atom_replication_ro_path }}/uploads/"
 atom_replication_synchronize_uploads_dir: False
 atom_replication_synchronize_downloads_dir: False
 
-# AtoM worker, varnish, memcache and php-fpm service names
+# AtoM worker, memcache and php-fpm service names
 atom_replication_edit_worker_service: "atom-worker-edit"
 atom_replication_ro_worker_service: "atom-worker-ro"
 
@@ -104,8 +100,6 @@ atom_replication_ro_php_fpm_service: "{{ atom_replication_edit_php_fpm_service }
 
 atom_replication_edit_memcache_service: "memcached"
 atom_replication_ro_memcache_service: "{{ atom_replication_edit_memcache_service }}"
-
-atom_replication_varnish_service: "varnish"
 
 # Nginx users
 atom_replication_edit_nginx_user: "www-data"

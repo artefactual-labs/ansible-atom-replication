@@ -2,12 +2,12 @@
 
 - name: "Delete ES backup repo directory on ES edit server"
   file:
-    path: "{{ atom_replication_edit_es_backup_repo_path }}"
+    path: "{{ atom_replication_es_backup_repo_path }}"
     state: "absent"
 
 - name: "Create ES backup repo directory on ES edit server"
   file:
-    path: "{{ atom_replication_edit_es_backup_repo_path }}"
+    path: "{{ atom_replication_es_backup_repo_path }}"
     state: "directory"
     mode: "0775"
     owner: "{{ atom_replication_snapshot_user }}"
@@ -15,7 +15,7 @@
 
 - name: "Take atom index snapshot on ES edit server"
   uri:
-    url: "http://127.0.0.1:{{ atom_replication_edit_es_port }}/_snapshot/{{ atom_replication_es_repo_name }}/{{ atom_replication_es_snapshot_name }}?wait_for_completion=true"
+    url: "http://127.0.0.1:{{ atom_replication_es_port }}/_snapshot/{{ atom_replication_es_repo_name }}/{{ atom_replication_es_snapshot_name }}?wait_for_completion=true"
     method: "PUT"
     body:
       indices: "{{ atom_replication_edit_es_index }}"
@@ -25,7 +25,7 @@
 
 - name: "create tarball of the ES repo"
   archive:
-    path: "{{ atom_replication_edit_es_backup_repo_path }}/"
+    path: "{{ atom_replication_es_backup_repo_path }}/"
     dest: "{{ atom_replication_edit_es_snapshots_dir }}/es-snapshot.tgz"
 
 - name: "Fetch ES backup on ansible host"

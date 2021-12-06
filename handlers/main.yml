@@ -2,7 +2,7 @@
 # handlers file for atom-replication-role
 
   - name: "restart elasticsearch"
-    service: 
+    service:
       name: "elasticsearch"
       state: "restarted"
     listen: "elasticsearch"
