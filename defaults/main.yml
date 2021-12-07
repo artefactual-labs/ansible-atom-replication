@@ -115,3 +115,8 @@ atom_replication_ro_dnsname: "http://ro.accesstomemory.org/"
 
 # Delete read-only db clipboard save items that reference slugs which no longer exist (Optional)
 atom_replication_clipboard_delete_obsolete_items: False
+
+# Synchronize edit site clipboard on read-only site (Optional)
+# As the user identificators can be different in both databases
+# some steps are needed.
+atom_replication_synchronize_clipboard: False

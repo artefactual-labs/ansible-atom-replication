@@ -33,3 +33,4 @@
     src: "{{ atom_replication_edit_es_snapshots_dir }}/es-snapshot.tgz"
     dest: "{{ atom_replication_ansible_host_snapshots_dir }}/es-snapshot.tgz"
     flat: "true"
+  no_log: true

@@ -100,6 +100,13 @@
   tags:
     - "atom-sync-baseurl"
 
+- include: "atom-sync-clipboard.yml"
+  when:
+    - inventory_hostname == atom_replication_ro_atom_host|string
+    - atom_replication_synchronize_clipboard|bool
+  tags:
+    - "atom-sync-clipboard"
+
 - include: "atom-delete-clipboard-obsolete-items.yml"
   when:
     - inventory_hostname == atom_replication_ro_atom_host|string

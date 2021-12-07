@@ -16,3 +16,25 @@
     src: "{{ atom_replication_edit_mysql_snapshots_dir }}/mysql-edit-snapshot.sql.gz"
     dest: "{{ atom_replication_ansible_host_snapshots_dir }}/mysql-edit-snapshot.sql.gz"
     flat: "true"
+  no_log: true
+
+- name: "Take user table backup on MySQL edit server when synchronizing clipboards and users"
+  block:
+    - name: "Dump user table"
+      become: "yes"
+      mysql_db:
+        name: "{{ atom_replication_edit_db_name }}"
+        single_transaction: "yes"
+        dump_extra_args: "--add-drop-table --skip-dump-date --tables user"
+        state: "dump"
+        target: "{{ atom_replication_edit_mysql_snapshots_dir }}/mysql_ro_table-user.sql.gz"
+
+    - name: "Fetch MySQL user table backup on ansible host"
+      fetch:
+        src: "{{ atom_replication_edit_mysql_snapshots_dir }}/mysql_ro_table-user.sql.gz"
+        dest: "{{ atom_replication_ansible_host_snapshots_dir }}/mysql_ro_table-user.sql.gz"
+        flat: "true"
+      no_log: true
+  when:
+    - atom_replication_synchronize_clipboard|bool
+  #End block
