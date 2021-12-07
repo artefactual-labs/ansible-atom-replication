@@ -18,8 +18,8 @@
       - "{{ __siteBaseUrl_id.query_result[0][0].id }}"
 
 
-- name: "Update urls for cached xml files"
+- name: "Update urls for cached xml files in downloads directory"
   become: "true"
   shell: |
-    find "{{ atom_replication_ro_path  }}" -type f -iname '*.xml' -exec sed -i "s/{{ atom_replication_edit_dnsname }}/{{ atom_replication_edit_dnsname }}/g" {} \;
+    find "{{ atom_replication_ro_downloads_path  }}" -type f -iname '*.xml' -exec sed -i "s/{{ atom_replication_edit_dnsname|regex_escape() }}/{{ atom_replication_ro_dnsname|regex_escape() }}/g" {} \;
 
