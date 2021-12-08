@@ -26,7 +26,7 @@
     - "install-replication"
     - "configure-es-backup"
 
-## Elasticsearch tasks
+## Elasticsearch backup tasks
 - include: "es-backup.yml"
   when:
     - inventory_hostname == atom_replication_edit_es_host|string
@@ -48,9 +48,9 @@
   tags:
     - "es-ro-restore"
 
-## End Elasticsearch tasks
+## End Elasticsearch backup tasks
 
-## MySQL tasks
+## MySQL backup tasks
 
 # To take ro backups of some tables: (atom_replication_ro_backup_tables)
 - include: "mysql-ro-backup-tables.yml"
@@ -73,6 +73,24 @@
   tags:
     - "mysql-edit-backup"
 
+## End MySQL backup tasks
+
+## Restore database and ES index in read-only server
+
+- include: "abort-replication.yml"
+  when:
+    - "ansible_play_batch | length != ansible_play_hosts_all | length"
+  throttle: 1
+  tags:
+    - "always"
+
+- include: "es-restore-backup.yml"
+  when:
+    - inventory_hostname == atom_replication_ro_es_host|string
+    - atom_replication_edit_es_host|string != atom_replication_ro_es_host|string
+  tags:
+    - "es-ro-restore"
+
 # For all scenarios
 - include: "mysql-restore-backup.yml"
   when:
@@ -80,7 +98,7 @@
   tags:
     - "mysql-restore-backup"
 
-## End MySQL tasks
+## End Restore database and ES index in read-only server
 
 ## Synchronize AtoM uploads and downloads
 
