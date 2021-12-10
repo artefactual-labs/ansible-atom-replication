@@ -72,7 +72,7 @@ atom_replication_es_backup_repo_path: "{{ atom_replication_es_backup_repo_path }
 atom_replication_edit_db_name: "{{ atom_replication_edit_db_name }}"
 atom_replication_ro_db_name: "{{ atom_replication_ro_db_name }}"
 
-{% if atom_replication_ro_backup_tables|lenght > 0 %}
+{% if atom_replication_ro_backup_tables|length > 0 %}
 atom_replication_ro_backup_tables:
 {{ atom_replication_ro_backup_tables | to_nice_yaml(indent=2) | indent(2,first=true) }}
 {% else %}
