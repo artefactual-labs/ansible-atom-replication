@@ -1,1 +1,17 @@
 ---
+
+- set_fact:
+    __ignore_table_prefix: "--ignore-table={{ atom_replication_edit_db_name|string }}"
+
+- set_fact:
+    __ignore_table_args: "{{ [__ignore_table_prefix] | product(atom_replication_ro_backup_tables) | map('join', '.') | join(' ')  }}"
+
+- name: "Create dump and import it directly on read-only database"
+  become: "yes"
+  shell: > 
+    mysqldump --add-drop-table --skip-dump-date --single-transaction 
+    {{ __ignore_table_args }} {{ atom_replication_edit_db_name }} 
+    | mysql {{ atom_replication_ro_db_name }}
+  register: "shell_dump_import_result"
+  failed_when: "shell_dump_import_result.stderr != ''"
+

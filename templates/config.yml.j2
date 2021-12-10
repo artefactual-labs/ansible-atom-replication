@@ -72,11 +72,17 @@ atom_replication_es_backup_repo_path: "{{ atom_replication_es_backup_repo_path }
 atom_replication_edit_db_name: "{{ atom_replication_edit_db_name }}"
 atom_replication_ro_db_name: "{{ atom_replication_ro_db_name }}"
 
-atom_replication_ro_backup_tables: "{{ atom_replication_ro_backup_tables }}"
+{% if atom_replication_ro_backup_tables|lenght > 0 %}
+atom_replication_ro_backup_tables:
+{% atom_replication_ro_backup_tables | to_nice_yaml(indent=2) | indent(2,first=true) %}
+{% else %}
+atom_replication_ro_backup_tables:[]
 # atom_replication_ro_backup_tables:
+#   - access_log
 #   - user
 #   - clipboard_save
 #   - clipboard_save_item
+{% endif %}
 
 # AtoM source paths
 atom_replication_edit_path: "{{ atom_replication_edit_path }}"

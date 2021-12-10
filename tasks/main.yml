@@ -34,20 +34,6 @@
   tags:
     - "es-ro-backup"
 
-- include: "es-clone-index.yml"
-  when:
-    - inventory_hostname == atom_replication_edit_es_host|string 
-    - atom_replication_edit_es_host|string == atom_replication_ro_es_host|string
-  tags:
-    - "es-ro-backup"
-
-- include: "es-restore-backup.yml"
-  when:
-    - inventory_hostname == atom_replication_ro_es_host|string 
-    - atom_replication_edit_es_host|string != atom_replication_ro_es_host|string
-  tags:
-    - "es-ro-restore"
-
 ## End Elasticsearch backup tasks
 
 ## MySQL backup tasks
@@ -66,13 +52,6 @@
   tags:
     - "mysql-edit-backup"
 
-- include: "mysql-db-copy.yml"
-  when:
-    - inventory_hostname == atom_replication_edit_mysql_host|string 
-    - atom_replication_edit_mysql_host|string == atom_replication_ro_mysql_host|string
-  tags:
-    - "mysql-edit-backup"
-
 ## End MySQL backup tasks
 
 ## Restore database and ES index in read-only server
@@ -84,6 +63,16 @@
   tags:
     - "always"
 
+# When edit and ro indices in the same ES server
+- include: "es-clone-index.yml"
+  when:
+    - inventory_hostname == atom_replication_edit_es_host|string
+    - atom_replication_edit_es_host|string == atom_replication_ro_es_host|string
+  tags:
+    - "es-clone-index"
+    - "es-ro-restore"
+
+# When edit and ro indices in different ES servers
 - include: "es-restore-backup.yml"
   when:
     - inventory_hostname == atom_replication_ro_es_host|string
@@ -91,10 +80,19 @@
   tags:
     - "es-ro-restore"
 
-# For all scenarios
+# When edit and ro databases in the same MySQL server
+- include: "mysql-db-copy.yml"
+  when:
+    - inventory_hostname == atom_replication_edit_mysql_host|string
+    - atom_replication_edit_mysql_host|string == atom_replication_ro_mysql_host|string
+  tags:
+    - "mysql-restore-backup"
+
+# When edit and ro databases in different MySQL servers
 - include: "mysql-restore-backup.yml"
   when:
     - inventory_hostname == atom_replication_ro_mysql_host|string
+    - atom_replication_edit_mysql_host|string != atom_replication_ro_mysql_host|string
   tags:
     - "mysql-restore-backup"
 
@@ -113,22 +111,22 @@
 
 - include: "atom-sync-baseurl.yml"
   when:
-    - inventory_hostname == atom_replication_ro_atom_host|string
     - atom_replication_synchronize_baseurl|bool
+    # host limitation conditional in playbook tasks
   tags:
     - "atom-sync-baseurl"
 
 - include: "atom-sync-clipboard.yml"
   when:
-    - inventory_hostname == atom_replication_ro_atom_host|string
+    - inventory_hostname == atom_replication_ro_mysql_host|string
     - atom_replication_synchronize_clipboard|bool
   tags:
     - "atom-sync-clipboard"
 
 - include: "atom-delete-clipboard-obsolete-items.yml"
   when:
-    - inventory_hostname == atom_replication_ro_atom_host|string
     - atom_replication_clipboard_delete_obsolete_items|bool
+    - inventory_hostname == atom_replication_ro_mysql_host|string
   tags:
     - "atom-clipboard-delete-obsolete-items"
 

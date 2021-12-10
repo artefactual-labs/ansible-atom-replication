@@ -31,29 +31,12 @@
   loop_control:
     label: "Restoring credentials for {{ item.email }}"
 
-#- name: "restore user credentials"
-#  shell: >
-#      mysql {{ atom_replication_ro_db_name|quote }} --execute "UPDATE user SET
-#      password_hash='{{ item.password_hash | replace('$', '\$') }}',
-#      salt='{{ item.salt }}',
-#      active={{ item.active|int }}
-#      WHERE email='{{ item.email }}';"
-#  with_items: "{{ __users_from_tsv.list }}"
-#  loop_control:
-#    label: "Restoring credentials for {{ item.email }}"
-
 - name: "Delete contents in clipboard_save table"
   become: "yes"
   mysql_query:
     login_db: "{{ atom_replication_ro_db_name }}"
     query:
       - DELETE FROM clipboard_save
-
-
-#- name: "delete contents in clipboard_save table"
-#  become: yes
-#  command:
-#    cmd: mysql {{ atom_replication_ro_db_name|quote }} --execute "DELETE FROM clipboard_save;"
 
 - name: "read clipboard_save snapshot as TSV"
   read_csv:
@@ -75,15 +58,3 @@
   with_items: "{{ __clipboard_save_from_tsv.list }}"
   loop_control:
     label: "Restoring clipboard {{ item.password }} created by {{ item.email }} @ {{ item.created_at }}"
-
-#- name: "Restore clipboard_save table entries"
-#  become: yes
-#  command:
-#    cmd: >
-#      mysql {{ atom_replication_ro_db_name|quote }} --execute "INSERT INTO clipboard_save(id, user_id, password, created_at)
-#      VALUES ({{ item.id|int }}, (SELECT id FROM user WHERE email='{{ item.email }}' LIMIT 1),
-#      '{{ item.password }}', '{{ item.created_at }}');"
-#  with_items: "{{ __clipboard_save_from_tsv.list }}"
-#  loop_control:
-#    label: "Restoring clipboard {{ item.password }} created by {{ item.email }} @ {{ item.created_at }}"
-
