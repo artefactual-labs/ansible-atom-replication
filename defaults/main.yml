@@ -74,6 +74,7 @@ atom_replication_ro_db_name: "atom-ro"
 
 atom_replication_ro_backup_tables: []
 # atom_replication_ro_backup_tables:
+#   - access_log
 #   - user
 #   - clipboard_save
 #   - clipboard_save_item
