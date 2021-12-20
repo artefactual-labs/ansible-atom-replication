@@ -19,9 +19,10 @@
     src: "{{ item }}"
     dest: "{{ atom_replication_ansible_remote_path }}/{{ item }}"
   loop:
-    - "requirements.yml"
     - "ansible.cfg"
+    - "{{ config_file }}"
     - "replication.yml"
+    - "requirements.yml"
 
 # Create dictionary with items: { ansible_host, ansible_ssh_hostname, ansible_ssh_username } for servers:
 # - ES hosts
@@ -47,7 +48,6 @@
     __dict_hosts: "{{ __dict_hosts | unique }}"
 
 # Create files with templates:
-# - config.yml  
 # - hosts 
 
 - name: "Create ansible inventory file on ansible host"
@@ -55,12 +55,6 @@
   template:
     src: "hosts.j2"
     dest: "{{ atom_replication_ansible_remote_path }}/hosts"
-
-- name: "Create config.yml file on ansible host"
-  become: "no"
-  template:
-    src: "templates/config.yml.j2"
-    dest: "{{ atom_replication_ansible_remote_path }}/config.yml"
 
 # Create rsa key
 - name: "Create rsa for user {{ atom_replication_ansible_remote_user }} on ansible host"
