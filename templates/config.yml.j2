@@ -126,3 +126,29 @@ atom_replication_clipboard_delete_obsolete_items: "{{ atom_replication_clipboard
 # As the user identificators can be different in both databases
 # some steps are needed.
 atom_replication_synchronize_clipboard: "{{ atom_replication_synchronize_clipboard }}"
+
+# Services to be restarted on AtoM read-only host after replication
+{% if atom_replication_ro_nginx_restart_services|length > 0 %}
+atom_replication_ro_nginx_restart_services:
+{{ atom_replication_ro_nginx_restart_services | to_nice_yaml(indent=2) | indent(2,first=true) }}
+{% else %}
+atom_replication_ro_nginx_restart_services:[]
+# atom_replication_ro_nginx_restart_services:
+#   - "memcached"
+#   - "php7.2-fpm"
+#   - "varnish"
+#  - "{{ atom_replication_ro_worker_service }}"
+#  - "{{ atom_replication_edit_worker_service }}"
+{% endif %}
+
+# Symfony commands to run on AtoM read-only host after replication
+# as nginx user and {{ atom_replication_ro_path }} path
+{% if atom_replication_ro_nginx_symfony_commands|length > 0 %}
+atom_replication_ro_nginx_symfony_commands:
+{{ atom_replication_ro_nginx_symfony_commands | to_nice_yaml(indent=2) | indent(2,first=true) }}
+{% else %}
+atom_replication_ro_nginx_symfony_commands: []
+#atom_replication_ro_nginx_symfony_commands:
+#  - "cc"
+#  - "tools:expire-data --older-than=$(date +'%Y-%m-%d' -d '-15 days') clipboard,job -f"
+{% endif %}

@@ -13,8 +13,15 @@
 #  avoid problems in the read-only site. This file includes tasks to start services stopped when 
 #  running the replicastion script
 
-#Add more tasks to restart nginx, php-fpm or workers stopped when starting the replication script
+# The nginx service on AtoM edit host was stopped previously, so the service is going to be
+# started before aborting the replication
+- name: "Restart nginx server on AtoM edit host"
+  become: "yes"
+  service:
+    name: "nginx"
+    state: "restarted"
+  when:
+    - inventory_hostname == atom_replication_edit_atom_host|string
 
 - shell: /bin/false
-  when: "ansible_play_batch | length != ansible_play_hosts_all | length"
   throttle: 1

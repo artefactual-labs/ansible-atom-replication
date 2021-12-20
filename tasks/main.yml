@@ -26,6 +26,15 @@
     - "install-replication"
     - "configure-es-backup"
 
+## Stop nginx service in AtoM edit host
+- name: "Stop nginx server on AtoM edit host"
+  become: "yes"
+  service:
+    name: "nginx"
+    state: "stopped"
+  when:
+    - inventory_hostname == atom_replication_edit_atom_host|string
+
 ## Elasticsearch backup tasks
 - include: "es-backup.yml"
   when:
@@ -98,6 +107,13 @@
 
 ## End Restore database and ES index in read-only server
 
+- include: "abort-replication.yml"
+  when:
+    - "ansible_play_batch | length != ansible_play_hosts_all | length"
+  throttle: 1
+  tags:
+    - "always"
+
 ## Synchronize AtoM uploads and downloads
 
 - include: "atom-sync-uploads-downloads.yml"
@@ -134,3 +150,18 @@
 #  when: "atom_replication_delete_old_records|true"
 #  tags:
 #    - "atom-delete-old-records"
+
+- include: "atom-ro-restart-services-and-symfony-commands.yml"
+  when:
+    - inventory_hostname == atom_replication_edit_atom_host|string
+  tags:
+    - "atom-ro-restart-services-and-symfony-commands"
+
+## Start nginx service in AtoM edit host
+- name: "Start nginx server on AtoM edit host"
+  become: "yes"
+  service:
+    name: "nginx"
+    state: "started"
+  when:
+    - inventory_hostname == atom_replication_edit_atom_host|string

@@ -7,38 +7,3 @@
       state: "restarted"
     listen: "elasticsearch"
 
-  - name: "restart read-only AtoM worker"
-    service:
-      name: "{{ atom_replication_ro_worker_service }}"
-      state: "restarted"
-    listen: "atom-worker-ro"
-
-  - name: "restart edit AtoM worker"
-    service:
-      name: "{{ atom_replication_edit_worker_service }}"
-      state: "restarted"
-    listen: "atom-worker-edit"
-
-  - name: "restart read-only php-fpm"
-    service:
-      name: "{{ atom_replication_ro_php_fpm_service }}"
-      state: "restarted"
-    listen: "php-fpm-ro"
-
-  - name: "restart edit php-fpm"
-    service:
-      name: "{{ atom_replication_edit_php_fpm_service }}"
-      state: "restarted"
-    listen: "php-fpm-edit"
-
-  - name: "restart nginx"
-    service:
-      name: "nginx"
-      state: "restarted"
-    listen: "nginx"
-
-  - name: "reload varnish"
-    service:
-      name: "{{ atom_replication_varnish_service }}"
-      state: "reloaded"
-    listen: "varnish"

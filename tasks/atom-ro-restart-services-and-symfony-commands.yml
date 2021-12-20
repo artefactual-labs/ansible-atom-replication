@@ -1,0 +1,16 @@
+---
+
+- name: "Run symfony commands on AtoM read-only host after replication"
+  become: "yes"
+  become_user: "{{ atom_replication_edit_nginx_user }}"
+  shell: "php symfony {{ item }}"
+  args:
+    chdir: "{{ atom_replication_ro_path }}"
+  loop: "{{ atom_replication_ro_nginx_symfony_commands }}"
+
+- name: "Restart services on AtoM read-only host after replication"
+  become: "yes"
+  service:
+    name: "{{  item }}"
+    state: "restarted"
+  loop: "{{ atom_replication_ro_nginx_restart_services }}"

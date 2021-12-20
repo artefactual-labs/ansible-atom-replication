@@ -121,3 +121,17 @@ atom_replication_clipboard_delete_obsolete_items: False
 # As the user identificators can be different in both databases
 # some steps are needed.
 atom_replication_synchronize_clipboard: False
+
+# Services to be restarted on AtoM read-only host after replication
+atom_replication_ro_nginx_restart_services:
+  - "memcached"
+#  - "php7.2-fpm"
+#  - "varnish"
+#  - "{{ atom_replication_ro_worker_service }}"
+#  - "{{ atom_replication_edit_worker_service }}"
+
+# Symfony commands to run on AtoM read-only host after replication
+# as nginx user and {{ atom_replication_ro_path }} path
+atom_replication_ro_nginx_symfony_commands:
+  - "cc"
+#  - "tools:expire-data --older-than=$(date +'%Y-%m-%d' -d '-15 days') clipboard,job -f"
