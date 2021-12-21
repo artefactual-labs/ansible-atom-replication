@@ -17,7 +17,7 @@
   delegate_to: "{{ atom_replication_ro_atom_host }}"
   when: "atom_replication_synchronize_uploads_dir|bool"
 
-- name: "Synchronice uploads"
+- name: "Synchronize uploads"
   become: yes
   become_method: sudo
   # ansible >= 2.9 needs become_flags when using sudo with synchronize
@@ -55,7 +55,7 @@
   delegate_to: "{{ atom_replication_ro_atom_host }}"
   when: "atom_replication_synchronize_downloads_dir|bool"
 
-- name: "Synchronice downloads"
+- name: "Synchronize downloads"
   become: yes
   become_method: sudo
   # ansible >= 2.9 needs become_flags when using sudo with synchronize
