@@ -10,6 +10,7 @@
   become: "no"
   pip:
     name: "ansible"
+    version: "4.10"
     virtualenv: "{{ atom_replication_ansible_remote_path }}/venv-ansible"
     virtualenv_python: "python3"
 
