@@ -1,9 +1,5 @@
 ---
 
 atom_replication_venv_packages:
-  - "python36-PyMySQL"
   - "python36-virtualenv"
   - "python-virtualenv"
-
-atom_replication_pymysql_package:
-  - "python36-PyMySQL"

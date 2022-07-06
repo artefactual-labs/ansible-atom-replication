@@ -1,12 +1,5 @@
 ---
 
-
-- name: "Install PyMySQL package on MySQL edit host"
-  become: "yes"
-  package:
-    name: "{{ atom_replication_pymysql_package }}"
-    state: "present"
-
 - name: "Create source mysqldump on MySQL edit host"
   become: "yes"
   mysql_db:

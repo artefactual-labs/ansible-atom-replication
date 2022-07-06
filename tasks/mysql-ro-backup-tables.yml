@@ -1,11 +1,5 @@
 ---
 
-- name: "Install PyMySQL package on MySQL read-only host"
-  become: "yes"
-  package:
-    name: "{{ atom_replication_pymysql_package }}"
-    state: "present"
-
 - name: "Dump read-only tables that will not be replicated on MySQL read-only server"
   become: "yes"
   mysql_db:
