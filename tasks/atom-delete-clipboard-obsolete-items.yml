@@ -1,8 +1,9 @@
 ---
-- name: "Delete public db clipboard save items that reference slugs which no longer exist"
+- name: "Delete read-only db clipboard save items that reference slugs which no longer exist"
   become: "yes"
   mysql_query:
     login_db: "{{ atom_replication_ro_db_name }}"
+    login_unix_socket: "{{ atom_replication_ro_mysql_unix_socket }}"
     query: >
       DELETE clipboard_save_item FROM clipboard_save_item
       LEFT JOIN slug ON slug.slug = clipboard_save_item.slug

@@ -1,5 +1,12 @@
 ---
 
+- name: "Create role directory in ansible remote host"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_ansible_remote_path }}"
+    state: "directory"
+    owner: "{{ atom_replication_ansible_remote_user }}"
+
 - name: "Install virtualenv packages on ansible host"
   become: "yes"
   package:
@@ -21,9 +28,14 @@
     dest: "{{ atom_replication_ansible_remote_path }}/{{ item }}"
   loop:
     - "ansible.cfg"
-    - "{{ config_file }}"
     - "replication.yml"
     - "requirements.yml"
+
+- name: "Copy config file to replication directory on ansible host"
+  become: "no"
+  copy:
+    src: "{{ config_file }}"
+    dest: "{{ atom_replication_ansible_remote_path }}/config.yml"
 
 # Create dictionary with items: { ansible_host, ansible_ssh_hostname, ansible_ssh_username } for servers:
 # - ES hosts

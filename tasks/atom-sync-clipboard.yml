@@ -20,6 +20,7 @@
   become: "yes"
   mysql_query:
     login_db: "{{ atom_replication_ro_db_name }}"
+    login_unix_socket: "{{ atom_replication_ro_mysql_unix_socket }}"
     query:
       - UPDATE user SET password_hash=%s, salt=%s, active=%s WHERE email=%s
     positional_args:
@@ -35,6 +36,7 @@
   become: "yes"
   mysql_query:
     login_db: "{{ atom_replication_ro_db_name }}"
+    login_unix_socket: "{{ atom_replication_ro_mysql_unix_socket }}"
     query:
       - DELETE FROM clipboard_save
 
@@ -48,6 +50,7 @@
   become: "yes"
   mysql_query:
     login_db: "{{ atom_replication_ro_db_name }}"
+    login_unix_socket: "{{ atom_replication_ro_mysql_unix_socket }}"
     query:
       - INSERT INTO clipboard_save(id, user_id, password, created_at) VALUES (%s, (SELECT id FROM user WHERE email=%s' LIMIT 1),%s,%s)
     positional_args:

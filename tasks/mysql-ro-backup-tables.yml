@@ -10,6 +10,7 @@
   become: "yes"
   mysql_db:
     name: "{{ atom_replication_ro_db_name }}"
+    login_unix_socket: "{{ atom_replication_ro_mysql_unix_socket }}"
     single_transaction: "yes"
     dump_extra_args: "--add-drop-table --skip-dump-date --tables {{ item }}"
     state: "dump"
@@ -39,6 +40,7 @@
       become: "yes"
       mysql_db:
         name: "{{ atom_replication_ro_db_name }}"
+        login_unix_socket: "{{ atom_replication_ro_mysql_unix_socket }}"
         single_transaction: "yes"
         dump_extra_args: "--add-drop-table --skip-dump-date --tables clipboard_save_item"
         state: "dump"

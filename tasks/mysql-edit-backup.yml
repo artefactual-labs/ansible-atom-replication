@@ -11,6 +11,7 @@
   become: "yes"
   mysql_db:
     name: "{{ atom_replication_edit_db_name }}"
+    login_unix_socket: "{{ atom_replication_edit_mysql_unix_socket }}"
     single_transaction: "yes"
     # Appending database name to the atom_replication_ro_backup_tables list
     ignore_tables: "{{ [atom_replication_edit_db_name] | product(atom_replication_ro_backup_tables) | map('join','.') | list }}"
@@ -31,6 +32,7 @@
       become: "yes"
       mysql_db:
         name: "{{ atom_replication_edit_db_name }}"
+        login_unix_socket: "{{ atom_replication_edit_mysql_unix_socket }}"
         single_transaction: "yes"
         dump_extra_args: "--add-drop-table --skip-dump-date --tables user"
         state: "dump"

@@ -10,7 +10,7 @@ atom_replication_edit_es_host: "localhost"
 atom_replication_ro_es_host: "localhost"
 
 
-# Ansible ssh IP addresses/hostnames (Ansible ssh host in Ansible inventory)
+# Ansible ssh usernames (Ansible ssh host in Ansible inventory)
 atom_replication_edit_atom_ansible_user: "artefactual"
 atom_replication_ro_atom_ansible_user: "{{ atom_replication_edit_atom_ansible_user }}"
 atom_replication_ro_es_ansible_user: "{{ atom_replication_edit_atom_ansible_user }}"
@@ -18,13 +18,13 @@ atom_replication_edit_es_ansible_user: "{{ atom_replication_edit_atom_ansible_us
 atom_replication_ro_mysql_ansible_user: "{{ atom_replication_edit_atom_ansible_user }}"
 atom_replication_edit_mysql_ansible_user: "{{ atom_replication_edit_atom_ansible_user }}"
 
-# Ansible ssh usernames (Ansible ssh user in Ansible inventory)
+# Ansible ssh addresses/hostnames (Ansible ssh user in Ansible inventory)
 atom_replication_edit_atom_ansible_host: "localhost"
-atom_replication_ro_atom_ansible_host: "{{ atom_replication_edit_atom_ansible_user }}"
-atom_replication_ro_es_ansible_host: "{{ atom_replication_edit_atom_ansible_user }}"
-atom_replication_edit_es_ansible_host: "{{ atom_replication_edit_atom_ansible_user }}"
-atom_replication_ro_mysql_ansible_host: "{{ atom_replication_edit_atom_ansible_user }}"
-atom_replication_edit_mysql_ansible_host: "{{ atom_replication_edit_atom_ansible_user }}"
+atom_replication_ro_atom_ansible_host: "{{ atom_replication_edit_atom_ansible_host }}"
+atom_replication_ro_es_ansible_host: "{{ atom_replication_edit_atom_ansible_host }}"
+atom_replication_edit_es_ansible_host: "{{ atom_replication_edit_atom_ansible_host }}"
+atom_replication_ro_mysql_ansible_host: "{{ atom_replication_edit_atom_ansible_host }}"
+atom_replication_edit_mysql_ansible_host: "{{ atom_replication_edit_atom_ansible_host }}"
 
 # Needed to rsync uploads and downloads from AtoM edit host to AtoM read-only host
 atom_replication_edit_ssh_pubkey_file: "/home/{{ atom_replication_edit_atom_ansible_user }}/.ssh/id_rsa"
@@ -71,6 +71,11 @@ atom_replication_es_backup_repo_path: "/var/lib/elasticsearch/backup-repo"
 # MySQL settings
 atom_replication_edit_db_name: "atom-edit"
 atom_replication_ro_db_name: "atom-ro"
+
+# mysql_db and mysql_query are failing on Ubuntu 20 when using /root/.my.cnf config file
+# Both modules work fine using the `login_unix_socket`
+atom_replication_edit_mysql_unix_socket: "{{ '/var/lib/mysql/mysql.sock' if ansible_os_family == 'RedHat' else '/var/run/mysqld/mysqld.sock' }}"
+atom_replication_ro_mysql_unix_socket: "{{ '/var/lib/mysql/mysql.sock' if ansible_os_family == 'RedHat' else '/var/run/mysqld/mysqld.sock' }}"
 
 atom_replication_ro_backup_tables: []
 # atom_replication_ro_backup_tables:
