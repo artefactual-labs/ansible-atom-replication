@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# Move to the replication directory
+cd "$(dirname "$(readlink -f "$0")")"
+
+# Define and export log file
+export ANSIBLE_LOG_PATH=replication-logs/replication-$(date +%Y%m%d%H%M%S).log
+
+# Get user running this script
+script_user=$(whoami)
+
+# Run replication script
+if [[ "${script_user}" != "{{ atom_replication_ansible_remote_user }}" ]]; then
+        sudo -u {{ atom_replication_ansible_remote_user }} venv-ansible/bin/ansible-playbook -i hosts replication.yml
+else
+        venv-ansible/bin/ansible-playbook -i hosts replication.yml
+fi

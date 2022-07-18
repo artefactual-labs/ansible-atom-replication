@@ -157,6 +157,14 @@
   tags:
     - "atom-ro-restart-services-and-symfony-commands"
 
+## Configure cron task
+- include: "cron.yml"
+  when:
+    - inventory_hostname == atom_replication_ansible_remote_server|string 
+  tags:
+    - "cron"
+    - "install-replication"
+
 ## Start nginx service in AtoM edit host
 - name: "Start nginx server on AtoM edit host"
   become: "yes"

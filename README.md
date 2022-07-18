@@ -24,6 +24,38 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
 Example Playbook
 ----------------
 
+To deploy from your local computer on ansible remote host (nginx edit site recomended) use the following playbook:
+
+```
+---
+- hosts:
+        - "all:!localhost:!~.*-hyperv:!~.*-mysql:!~.*-es"
+  vars:
+    atom_replication_config: "replication-config.yml"
+
+  pre_tasks:
+    - name: "Include replication config file"
+      include_vars: "{{ item }}"
+      with_first_found:
+        - "host_vars/{{ inventory_hostname }}/{{ atom_replication_config }}"
+        - "files/{{ inventory_hostname }}/{{ atom_replication_config }}"
+        - "{{ atom_replication_config }}"
+      tags: always
+
+  roles:
+
+    - role: "artefactual.ansible-atom-replication"
+      become: "yes"
+      tags:
+        - "atom-replication"
+```
+
+And run:
+
+```
+ansible-playbook -l aph-test-nginx mgt.replication-aph-role.yml -t install-replication
+```
+
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
     - hosts: servers

@@ -1,0 +1,34 @@
+---
+
+- name: "Create replication cron file"
+  become: "yes"
+  cron:
+    name: "{{ atom_replication_ansible_remote_cron_name }}"
+    minute: "{{ atom_replication_ansible_remote_cron_minute }}"
+    hour: "{{ atom_replication_ansible_remote_cron_hour }}"
+    day: "{{ atom_replication_ansible_remote_cron_day }}"
+    month: "{{ atom_replication_ansible_remote_cron_month }}"
+    weekday: "{{ atom_replication_ansible_remote_cron_weekday }}"
+    user: "{{ atom_replication_ansible_remote_cron_user }}"
+    job: "{{ atom_replication_ansible_remote_cron_job }}"
+    cron_file: "{{ atom_replication_ansible_remote_cron_file }}"
+  when: atom_replication_ansible_remote_cron_enabled|bool
+
+- name: "Delete replication cron file"
+  become: "yes"
+  cron:
+    name: "{{ atom_replication_ansible_remote_cron_name }}"
+    cron_file: "{{ atom_replication_ansible_remote_cron_file }}"
+    state: absent
+  when: not atom_replication_ansible_remote_cron_enabled|bool
+
+- name: "Set cron job MAIL address"
+  become: "yes"
+  cron:
+    env: yes
+    name: "MAILTO"
+    value: "{{ atom_replication_ansible_remote_cron_mailto }}"
+    cron_file: "{{ atom_replication_ansible_remote_cron_file }}"
+    user: "{{ atom_replication_ansible_remote_cron_user }}"
+  when: atom_replication_ansible_remote_cron_enabled|bool
+

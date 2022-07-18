@@ -51,6 +51,11 @@ atom_replication_ansible_remote_cron_hour: "7"
 atom_replication_ansible_remote_cron_day: "*"
 atom_replication_ansible_remote_cron_month: "*"
 atom_replication_ansible_remote_cron_weekday: "0"
+atom_replication_ansible_remote_cron_name: "AtoM site replication"
+atom_replication_ansible_remote_cron_user: "{{ atom_replication_ansible_remote_user }}"
+atom_replication_ansible_remote_cron_file: "replicate-atom"
+atom_replication_ansible_remote_cron_job: "{{ atom_replication_ansible_remote_path }}/site-replication.sh"
+atom_replication_ansible_remote_cron_mailto: ""
 
 # Elasticsearch settings:
 

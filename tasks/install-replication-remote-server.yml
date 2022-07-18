@@ -7,6 +7,14 @@
     state: "directory"
     owner: "{{ atom_replication_ansible_remote_user }}"
 
+- name: "Create ansible-playbook logs directory"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_ansible_remote_path }}/replication-logs"
+    state: "directory"
+    mode: "0775"
+    owner: "{{ atom_replication_ansible_remote_user }}"
+
 - name: "Install virtualenv packages on ansible host"
   become: "yes"
   package:
@@ -33,9 +41,13 @@
 
 - name: "Copy config file to replication directory on ansible host"
   become: "no"
-  copy:
-    src: "{{ config_file }}"
+  copy: 
+    src: "{{ item }}"
     dest: "{{ atom_replication_ansible_remote_path }}/config.yml"
+  with_first_found:
+    - "host_vars/{{ inventory_hostname }}/{{ atom_replication_config }}"
+    - "files/{{ inventory_hostname }}/{{ atom_replication_config }}"
+    - "{{ atom_replication_config }}"
 
 # Create dictionary with items: { ansible_host, ansible_ssh_hostname, ansible_ssh_username } for servers:
 # - ES hosts
@@ -68,6 +80,14 @@
   template:
     src: "hosts.j2"
     dest: "{{ atom_replication_ansible_remote_path }}/hosts"
+
+- name: "Create replication script on ansible host"
+  become: "no"
+  template:
+    src: "replication.sh.j2"
+    dest: "{{ atom_replication_ansible_remote_path }}/site-replication.sh"
+    owner: "{{ atom_replication_ansible_remote_user }}"
+    mode: 0755
 
 # Create rsa key
 - name: "Create rsa for user {{ atom_replication_ansible_remote_user }} on ansible host"
@@ -151,7 +171,7 @@
         mode: "0600"
         line: "StrictHostKeyChecking no"
         delegate_to: "{{ atom_replication_edit_atom_host }}"
-    - name: "Authorize iAtoM edit rsa key on AtoM read-only host"
+    - name: "Authorize AtoM edit rsa key on AtoM read-only host"
       authorized_key:
         user: "{{ atom_replication_ro_atom_ansible_user }}"
         state: "present"

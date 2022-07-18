@@ -1,9 +1,9 @@
 ---
 - hosts: localhost
   vars:
-    config_file: "config.yml"
+    atom_replication_config: "config.yml"
   vars_files:
-    - "{{ config_file }}"
+    - "{{ atom_replication_config }}"
 
 - hosts:
     - "{{ atom_replication_ansible_remote_server }}"
@@ -14,9 +14,9 @@
     - "{{ atom_replication_edit_mysql_host }}"
     - "{{ atom_replication_ro_mysql_host }}"
   vars:
-    config_file: "config.yml"
+    atom_replication_config: "config.yml"
   vars_files:
-    - "{{ config_file }}"
+    - "{{ atom_replication_config }}"
 
   roles:
 
