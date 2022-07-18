@@ -23,5 +23,6 @@
   when:
     - inventory_hostname == atom_replication_edit_atom_host|string
 
-- shell: /bin/false
+- name: "Send abort signal when some task has failed"
+  shell: /bin/false
   throttle: 1
