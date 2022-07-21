@@ -115,7 +115,7 @@ atom_replication_edit_memcache_service: "memcached"
 atom_replication_ro_memcache_service: "{{ atom_replication_edit_memcache_service }}"
 
 # Nginx users
-atom_replication_edit_nginx_user: "www-data"
+atom_replication_edit_nginx_user: "{% if ansible_os_family == 'RedHat' %}nginx{% elif ansible_os_family == 'Debian' %}www-data{% endif %}"
 atom_replication_ro_nginx_user: "{{ atom_replication_edit_nginx_user }}"
 
 # Synchronize baseurl (Optional)

@@ -21,13 +21,35 @@
     name: "{{ atom_replication_venv_packages }}"
     state: "present"
 
-- name: "Create ansible virtualenv on ansible host"
+- name: "Create ansible virtualenv on ansible host (Ubuntu)"
   become: "no"
   pip:
     name: "ansible"
     version: "4.10"
     virtualenv: "{{ atom_replication_ansible_remote_path }}/venv-ansible"
     virtualenv_python: "python3"
+  when:
+    - ansible_os_family == "Debian"
+
+- name: "Create ansible virtualenv on ansible host (CentOS/RedHat)"
+  become: "no"
+  pip:
+    name: "pip"
+    extra_args: "--upgrade"
+    virtualenv: "{{ atom_replication_ansible_remote_path }}/venv-ansible"
+    virtualenv_python: "python3"
+  when:
+    - ansible_os_family == "RedHat"
+
+- name: "Install ansible in virtualenv on ansible host (CentOS/RedHat)"
+  become: "no"
+  pip:
+    name: "ansible"
+    version: "4.10"
+    virtualenv: "{{ atom_replication_ansible_remote_path }}/venv-ansible"
+    virtualenv_python: "python3"
+  when:
+    - ansible_os_family == "RedHat"
 
 - name: "Copy ansible files to replication directory on ansible host"
   become: "no"
@@ -48,6 +70,8 @@
     - "host_vars/{{ inventory_hostname }}/{{ atom_replication_config }}"
     - "files/{{ inventory_hostname }}/{{ atom_replication_config }}"
     - "{{ atom_replication_config }}"
+  when:
+    - inventory_hostname == atom_replication_ansible_remote_server|string
 
 # Create dictionary with items: { ansible_host, ansible_ssh_hostname, ansible_ssh_username } for servers:
 # - ES hosts

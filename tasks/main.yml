@@ -10,6 +10,7 @@
 ## Configure ansible virtualenv, ssh connections and replication script in remote server
 #  The best server to install the replication script is the edit nginx host.
 - include: "install-replication-remote-server.yml"
+  run_once: true
   when:
     - inventory_hostname == atom_replication_ansible_remote_server|string
   tags:
