@@ -4,8 +4,8 @@
   copy:
     src: "{{ atom_replication_ansible_host_snapshots_dir }}/mysql-edit-snapshot.sql.gz"
     dest: "{{ atom_replication_ro_mysql_snapshots_dir }}/mysql-edit-snapshot.sql.gz"
-    owner: "{{ atom_replication_snapshot_user }}"
-    group: "{{ atom_replication_snapshot_group }}"
+    owner: "{{ atom_replication_snapshot_mysql_user }}"
+    group: "{{ atom_replication_snapshot_mysql_group }}"
 
 - name: "Import edit database from backup"
   become: "yes"

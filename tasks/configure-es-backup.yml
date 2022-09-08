@@ -48,8 +48,8 @@
     path: "{{ atom_replication_es_backup_repo_path }}"
     state: "directory"
     mode: "0775"
-    owner: "{{ atom_replication_snapshot_user }}"
-    group: "{{ atom_replication_snapshot_group }}"
+    owner: "{{ atom_replication_snapshot_es_user }}"
+    group: "{{ atom_replication_snapshot_es_group }}"
 
 - name: "flush to restart elasticsearch if there were config changes"
   meta: "flush_handlers"

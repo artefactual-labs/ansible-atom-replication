@@ -4,8 +4,8 @@
   copy:
     src: "{{ atom_replication_ansible_host_snapshots_dir }}/es-snapshot.tgz"
     dest: "{{ atom_replication_ro_es_snapshots_dir }}/es-snapshot.tgz"
-    owner: "{{ atom_replication_snapshot_user }}"
-    group: "{{ atom_replication_snapshot_group }}"
+    owner: "{{ atom_replication_snapshot_es_user }}"
+    group: "{{ atom_replication_snapshot_es_group }}"
 
 - name: "Delete ES backup repo directory on ES read-only server"
   file:
@@ -17,15 +17,15 @@
     path: "{{ atom_replication_es_backup_repo_path }}"
     state: "directory"
     mode: "0775"
-    owner: "{{ atom_replication_snapshot_user }}"
-    group: "{{ atom_replication_snapshot_group }}"
+    owner: "{{ atom_replication_snapshot_es_user }}"
+    group: "{{ atom_replication_snapshot_es_group }}"
 
 - name: "Restore ES backup files on ES read-only server"
   unarchive:
     src: "{{ atom_replication_ro_es_snapshots_dir }}/es-snapshot.tgz"
     dest: "{{ atom_replication_es_backup_repo_path }}"
-    owner: "{{ atom_replication_snapshot_user }}"
-    group: "{{ atom_replication_snapshot_group }}"
+    owner: "{{ atom_replication_snapshot_es_user }}"
+    group: "{{ atom_replication_snapshot_es_group }}"
     remote_src: true
 
 - name: "Close index to avoid problems while restoring the backup on ES read-only server"

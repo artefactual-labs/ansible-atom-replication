@@ -29,7 +29,7 @@ atom_replication_edit_mysql_ansible_host: "{{ atom_replication_edit_atom_ansible
 # Needed to rsync uploads and downloads from AtoM edit host to AtoM read-only host
 atom_replication_edit_ssh_pubkey_file: "/home/{{ atom_replication_edit_atom_ansible_user }}/.ssh/id_rsa"
 
-# Temporary Directories
+# Temporary Directories, Users and Groups
 
 atom_replication_edit_mysql_snapshots_dir: "/var/artefactual/replication-snapshots"
 atom_replication_ro_mysql_snapshots_dir: "/var/artefactual/replication-snapshots"
@@ -38,6 +38,11 @@ atom_replication_edit_es_snapshots_dir: "/var/artefactual/replication-snapshots"
 atom_replication_ro_es_snapshots_dir: "/var/artefactual/replication-snapshots"
 
 atom_replication_ansible_host_snapshots_dir: "{{ atom_replication_ansible_remote_path }}/replication"
+
+atom_replication_snapshot_mysql_user: "mysql"
+atom_replication_snapshot_mysql_group: "mysql"
+atom_replication_snapshot_es_user: "elasticsearch"
+atom_replication_snapshot_es_group: "elasticsearch"
 
 # Install role in remote server (Optional).
 # Use "install-replication" tag to deploy the replication script in the remote server
@@ -61,9 +66,6 @@ atom_replication_ansible_remote_cron_mailto: ""
 
 # Assuming all ES servers are going to use the same port
 atom_replication_es_port: "9200"
-
-atom_replication_snapshot_user: "{{ atom_replication_edit_es_ansible_user }}"
-atom_replication_snapshot_group: "elasticsearch"
 
 atom_replication_edit_es_index: "atom-edit"
 atom_replication_ro_es_index: "atom-ro"
