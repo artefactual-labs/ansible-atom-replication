@@ -133,7 +133,6 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 | `atom_replication_synchronize_clipboard` | False | Boolean variable to synchronize the edit site clipboard on the read-only site. As the user identificators can be different in both databases, some steps were needed in the role task |
 | `atom_replication_clipboard_delete_obsolete_items` | False | Delete read-only db clipboard save items that reference slugs which no longer exist. This variable is not related to `atom_replication_synchronize_clipboard`, both variables are related to different task files |
 | `atom_replication_ro_nginx_restart_services` | [ memcached ] | List of service names that will be restarted at the end of the role on the AtoM read-only server. It is recommended to have at least the memcached and php-fpm services to clean the cache |
-| `atom_replication_ro_nginx_restart_services` | [ memcached ] | List of service names that will be restarted at the end of the role on the AtoM read-only server. It is recommended to have
 | `atom_replication_ro_nginx_symfony_commands` | [ cc ] | List of php symfony commands to be run at the end of the role. It is recommended to have at least the `cc` command |
 
 
