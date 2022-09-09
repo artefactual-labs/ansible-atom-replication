@@ -106,19 +106,8 @@ atom_replication_ro_uploads_path: "{{ atom_replication_ro_path }}/uploads/"
 atom_replication_synchronize_uploads_dir: False
 atom_replication_synchronize_downloads_dir: False
 
-# AtoM worker, memcache and php-fpm service names
-atom_replication_edit_worker_service: "atom-worker-edit"
-atom_replication_ro_worker_service: "atom-worker-ro"
-
-atom_replication_edit_php_fpm_service: "php7.2-fpm"
-atom_replication_ro_php_fpm_service: "{{ atom_replication_edit_php_fpm_service }}"
-
-atom_replication_edit_memcache_service: "memcached"
-atom_replication_ro_memcache_service: "{{ atom_replication_edit_memcache_service }}"
-
 # Nginx users
-atom_replication_edit_nginx_user: "{% if ansible_os_family == 'RedHat' %}nginx{% elif ansible_os_family == 'Debian' %}www-data{% endif %}"
-atom_replication_ro_nginx_user: "{{ atom_replication_edit_nginx_user }}"
+atom_replication_ro_nginx_user: "{% if ansible_os_family == 'RedHat' %}nginx{% elif ansible_os_family == 'Debian' %}www-data{% endif %}"
 
 # Synchronize baseurl (Optional)
 # Check running: "select value from setting_i18n where id='124';" in both databases
@@ -139,8 +128,7 @@ atom_replication_ro_nginx_restart_services:
   - "memcached"
 #  - "php7.2-fpm"
 #  - "varnish"
-#  - "{{ atom_replication_ro_worker_service }}"
-#  - "{{ atom_replication_edit_worker_service }}"
+#  - "atom-worker-ro"
 
 # Symfony commands to run on AtoM read-only host after replication
 # as nginx user and {{ atom_replication_ro_path }} path

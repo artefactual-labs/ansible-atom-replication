@@ -147,11 +147,6 @@
   tags:
     - "atom-clipboard-delete-obsolete-items"
 
-#- include: "atom-delete-old-records.yml"
-#  when: "atom_replication_delete_old_records|true"
-#  tags:
-#    - "atom-delete-old-records"
-
 - include: "atom-ro-restart-services-and-symfony-commands.yml"
   when:
     - inventory_hostname == atom_replication_ro_atom_host|string

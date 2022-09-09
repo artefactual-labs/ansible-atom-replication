@@ -118,6 +118,25 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 | `atom_replication_edit_mysql_unix_socket` | `{{ '/var/lib/mysql/mysql.sock' if ansible_os_family == 'RedHat' else '/var/run/mysqld/mysqld.sock' }}` | Unix socket file to connect to the edit database server. It is used always on tasks that are delegated or running on the database server (localhost). The default value uses a conditional filter that sets the unix socket file depending on the Operative System |
 | `atom_replication_ro_mysql_unix_socket` | `{{ '/var/lib/mysql/mysql.sock' if ansible_os_family == 'RedHat' else '/var/run/mysqld/mysqld.sock' }}` | Unix socket file to connect to the read-only database server. It is used always on tasks that are delegated or running on the database server (localhost). The default value uses a conditional filter that sets the unix socket file depending on the Operative System |
 | `atom_replication_ro_backup_tables` | [] | List of tables on read-only database that are not going to be replaced with the replication process. The default value is an empty list |
+| `atom_replication_edit_path` | /usr/share/nginx/atom-edit | AtoM directory on the edit AtoM server |
+| `atom_replication_ro_path` | /usr/share/nginx/atom-ro | AtoM directory on the read-only AtoM server |
+| `atom_replication_edit_downloads_path` | `{{ atom_replication_edit_path }}/downloads/` | Downloads directory on edit AtoM server that will be synchronized on the read-only AtoM server when `atom_replication_synchronize_downloads_dir=True`. This variable always must end in "/" character |
+|`atom_replication_ro_downloads_path` | `{{ atom_replication_ro_path }}/downloads/` | Downloads directory on read-only AtoM server, this is the destination on the synchronization from the edit AtoM server downloads directory when `atom_replication_synchronize_downloads_dir=True`. This variable always must end in "/" character |
+| `atom_replication_edit_uploads_path` | `{{ atom_replication_edit_path }}/uploads/` | Uploads directory on edit AtoM server that will be synchronized on the read-only AtoM server when `atom_replication_synchronize_uploads_dir=True`. This variable always must end in "/" character |
+|`atom_replication_ro_uploads_path` | `{{ atom_replication_ro_path }}/uploads/` | Uploads directory on read-only AtoM server, this is the destination on the synchronization from the edit AtoM server uploads directory when `atom_replication_synchronize_uploads_dir=True`. This variable always must end in "/" character |
+| `atom_replication_synchronize_downloads_dir` | False | Boolean variable that enables the synchronization of the downloads directories |
+| `atom_replication_synchronize_uploads_dir` | False | Boolean variable that enables the synchronization of the uploads directories |
+| `atom_replication_ro_nginx_user` | `{% if ansible_os_family == 'RedHat' %}nginx{% elif ansible_os_family == 'Debian' %}www-data{% endif %}` | Nginx user on the AtoM read-only  server. It is needed to run the php symfony commands |
+| `atom_replication_synchronize_baseurl` | False | When not using the read-only base URL on the edit AtoM server, setting this variable as `True` the role will change the base URL on read-only site on all files in the downloads directory |
+| `atom_replication_edit_dnsname` | http://edit.accesstomemory.org/ | String that will be replaced by the `atom_replication_ro_dnsname` string on the AtoM read-only downloads files when `atom_replication_synchronize_baseurl=True` |
+| `atom_replication_ro_dnsname` | http://ro.accesstomemory.org/ | String that replaces the `atom_replication_edit_dnsname` string on the AtoM read-only downloads files when `atom_replication_synchronize_baseurl=True` |
+| `atom_replication_synchronize_clipboard` | False | Boolean variable to synchronize the edit site clipboard on the read-only site. As the user identificators can be different in both databases, some steps were needed in the role task |
+| `atom_replication_clipboard_delete_obsolete_items` | False | Delete read-only db clipboard save items that reference slugs which no longer exist. This variable is not related to `atom_replication_synchronize_clipboard`, both variables are related to different task files |
+| `atom_replication_ro_nginx_restart_services` | [ memcached ] | List of service names that will be restarted at the end of the role on the AtoM read-only server. It is recommended to have at least the memcached and php-fpm services to clean the cache |
+| `atom_replication_ro_nginx_restart_services` | [ memcached ] | List of service names that will be restarted at the end of the role on the AtoM read-only server. It is recommended to have
+| `atom_replication_ro_nginx_symfony_commands` | [ cc ] | List of php symfony commands to be run at the end of the role. It is recommended to have at least the `cc` command |
+
+
 
 
 
