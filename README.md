@@ -226,9 +226,9 @@ ansible-playbook -e atom_replication_ansible_remote_server=MY_ATOM_REPLICATION_R
 
 For more details see the following 3 sample scenarios:
 
-1. [Single Server with all services and two AtoM sites](documetation/single-server-scenario.md)
+1. [Single Server with all services and two AtoM sites](documentation/single-server-scenario.md)
 2. [Two servers with their own nginx, elasticsearch and MySQL services and a site on every server](documentation/two-servers-scenario.md)
-3. [Three servers: nginx server with the two AtoM sites, a MySQL server for both sites and an Elasticsearch server for both sites](documetation/three-servers-scenario.md)
+3. [Three servers: nginx server with the two AtoM sites, a MySQL server for both sites and an Elasticsearch server for both sites](documentation/three-servers-scenario.md)
 
 License
 -------
