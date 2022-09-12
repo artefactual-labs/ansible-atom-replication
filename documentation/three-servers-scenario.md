@@ -9,8 +9,8 @@ AtoM server, let's call this server `atom-nginx`:
 * IP Address: 1.2.3.4
 * ssh user: artefactual
 * OS: Ubuntu 20
-* edit site URL: https://edit.all-in-one-server.accesstomemory.org
-* read-only site URL: https://ro.all-in-one-server.accesstomemory.org
+* edit site URL: https://edit.replication.accesstomemory.org
+* read-only site URL: https://ro.replication.accesstomemory.org
 * edit AtoM path: /usr/share/nginx/atom-edit
 * read-only AtoM path: /usr/share/nginx/atom-ro
 
@@ -35,7 +35,7 @@ Elasticsearch server, let's call this server `atom-es`:
 For this replication, we want:
 
 * Install the replication ansible environment on the `atom-edit-server`, at `/usr/share/nginx/atom-replication` directory
-* schedule a weekly replication at 3:23 AM, every Sathurday, and send email notifications to: "my_email@example.com"
+* schedule a weekly replication at 3:23 AM, every Saturday, and send email notifications to: "my_email@example.com"
 * Don't copy clipboard and access log tables
 * Remove deleted items in clipboard. If the read-only clipboard (we are not copying the clipboard from edit site on read-only) has any item that has been deleted in the replication, then remove it from clipboard table
 * The 2 servers are using the same base URL (using the read-only on both), so we don't want to change the baseurl in downloads directory files
