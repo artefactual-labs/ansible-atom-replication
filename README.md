@@ -43,6 +43,12 @@ The role can be used in different scenarios, for instance:
 * Six servers scenario: Each `edit-atom-host`, `edit-elasticsearch-host`, `edit-mysql-host`, `read-only-atom-host`, `read-only-elasticsearch-host`, `read-only-mysql-host` is a different server.
 * Any `edit-atom-host`, `edit-elasticsearch-host`, `edit-mysql-host`, `read-only-atom-host`, `read-only-elasticsearch-host`, `read-only-mysql-host` combination.
 
+A dedeicated documentation for some sample scenarios can be found here:
+
+1. [Single Server with all services and two AtoM sites](documentation/single-server-scenario.md)
+2. [Two servers with their own nginx, elasticsearch and MySQL services and a site on every server](documentation/two-servers-scenario.md)
+3. [Three servers: nginx server with the two AtoM sites, a MySQL server for both sites and an Elasticsearch server for both sites](documentation/three-servers-scenario.md)
+
 Requirements
 ------------
 
@@ -56,7 +62,11 @@ The OS tested are:
 * Ubuntu 20
 * CentOS 7
 
-You need ansible >= 2.10. The recommended version is 2.12.5. It is because the role uses the `mysql_query` module and it doesn't exist in ansible<=2.9.
+You need ansible >= 2.10. The recommended version is 2.12.5. It is because the role uses the `mysql_query` module and it doesn't exist in ansible<=2.9. The following collections must be installed:
+
+* ansible.posix
+* community.general
+* community.mysql
 
 The MySQL servers must be configured to allow the passwordless connection from localhost and root user using an UNIX socket file.
 
@@ -134,10 +144,6 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 | `atom_replication_clipboard_delete_obsolete_items` | False | Delete read-only db clipboard save items that reference slugs which no longer exist. This variable is not related to `atom_replication_synchronize_clipboard`, both variables are related to different task files |
 | `atom_replication_ro_nginx_restart_services` | [ memcached ] | List of service names that will be restarted at the end of the role on the AtoM read-only server. It is recommended to have at least the memcached and php-fpm services to clean the cache |
 | `atom_replication_ro_nginx_symfony_commands` | [ cc ] | List of php symfony commands to be run at the end of the role. It is recommended to have at least the `cc` command |
-
-
-
-
 
 
 Dependencies

@@ -12,4 +12,9 @@ galaxy_info:
     - bionic
     - focal
 
+collections:
+- ansible.posix
+- community.general
+- community.mysql
+
 dependencies: []
