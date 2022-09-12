@@ -70,6 +70,8 @@ You need ansible >= 2.10. The recommended version is 2.12.5. It is because the r
 
 The MySQL servers must be configured to allow the passwordless connection from localhost and root user using an UNIX socket file.
 
+Your ansible.cfg and/or your ssh settings must allow the ssh agent forwarding because several tasks are delegated to other servers and it is assumed that the feature is enabled. For instance you can append to your `ssh_args` variable at `ansible.cfg` the string: `-o ForwardAgent=yes`
+
 Role Variables
 --------------
 

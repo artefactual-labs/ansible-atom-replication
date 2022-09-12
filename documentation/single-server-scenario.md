@@ -20,7 +20,7 @@ For this replication, we want:
 * Install the replication ansible environment on the server, at `/usr/share/nginx/atom-replication` directory
 * schedule a daily replication at 3:23 AM, and send email notifications to: "my_email@example.com"
 * Don't copy clipboard and access log tables
-* Remove deleted items in clipboard. If the read-only clipboard (we are not copiying the clipboard from edit site on read-only) has any item that has been deleted in the replication, then remove it from clipboard table.
+* Remove deleted items in clipboard. If the read-only clipboard (we are not copying the clipboard from edit site on read-only) has any item that has been deleted in the replication, then remove it from clipboard table.
 * The uploads and downloads directory are the same for edit and read-only sites (symlink) so we don't need a uploads/downloads synchronization
 * Run the `php symfony cc` command
 * Restart memcached, php-fpm and both AtoM workers
