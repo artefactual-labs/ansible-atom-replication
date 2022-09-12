@@ -43,7 +43,7 @@ The role can be used in different scenarios, for instance:
 * Six servers scenario: Each `edit-atom-host`, `edit-elasticsearch-host`, `edit-mysql-host`, `read-only-atom-host`, `read-only-elasticsearch-host`, `read-only-mysql-host` is a different server.
 * Any `edit-atom-host`, `edit-elasticsearch-host`, `edit-mysql-host`, `read-only-atom-host`, `read-only-elasticsearch-host`, `read-only-mysql-host` combination.
 
-A dedeicated documentation for some sample scenarios can be found here:
+A dedicated documentation for some sample scenarios can be found here:
 
 1. [Single Server with all services and two AtoM sites](documentation/single-server-scenario.md)
 2. [Two servers with their own nginx, elasticsearch and MySQL services and a site on every server](documentation/two-servers-scenario.md)
