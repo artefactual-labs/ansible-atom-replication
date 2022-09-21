@@ -1,11 +1,17 @@
 ansible-atom-replication
 ========================
 
-This role allows to deploy, configure and reconfigure an ansible environment on a server (called `ansible-run-server`) that will be used to run the AtoM replication process. The `ansible-run-server` can be (See `ansible-run-server` definition in the next section):
+This role allows system adminstrators to deploy, configure and reconfigure an ansible environment on a server (called `ansible-run-server`) that will be used to run the AtoM replication process. AtoM replication can be used to manage a 2-site AtoM deployment model - one public-facing read only site for public users, with content replicated from an internal read/write edit site for staff, which can be kept behind a firewall. Public login can also be fully disabled in the public site.
+
+In addition to enhancing security, this 2-site deployment model can also increase performance and scalability, as well as give archivists more control over when new records without a publication status (such as authority records) are made publicly discoverable.
+
+The `ansible-run-server` can be:
 
 * Your computer.
 * Any external server.
 * One of the AtoM servers, but *it is recommended to be deployed on the server that runs the AtoM read-only service*.
+
+(See `ansible-run-server` definition in the next section)
 
 **Table of Contents**
 
@@ -151,7 +157,7 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 Dependencies
 ------------
 
-This role doesn't have any dependency.
+This role doesn't have any addtional dependencies.
 
 Playbook to install the ansible environment on the ansible-run-server
 ---------------------------------------------------------------------
@@ -226,7 +232,7 @@ The above playbook requires:
 	- `files/{{ atom_replication_ansible_remote_server }}/{{ atom_replication_config }}"`
 	- Or any relative path defined as extra variable for `{{ atom_replication_config }}`, eg: `my_replication_files/my_replication_file.yml`
 
-The playbook must be run with samething like this:
+Run the playbook with something like this:
 
 ```
 ansible-playbook -e atom_replication_ansible_remote_server=MY_ATOM_REPLICATION_REMOTE_SERVER  -t install-replication
