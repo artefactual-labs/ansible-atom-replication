@@ -33,8 +33,14 @@
   service:
     name: "nginx"
     state: "stopped"
+  notify:
+    - "restart nginx"
   when:
     - inventory_hostname == atom_replication_edit_atom_host|string
+  tags:
+    - "es-clone-index"
+    - "es-ro-restore"
+    - "mysql-restore-backup"
 
 ## Elasticsearch backup tasks
 - include: "es-backup.yml"

@@ -7,3 +7,8 @@
       state: "restarted"
     listen: "elasticsearch"
 
+  - name: "restart nginx"
+    service:
+      name: "nginx"
+      state: "restarted"
+    listen: "nginx"
