@@ -1,0 +1,55 @@
+---
+# Read the config file from localhost and make sure the install-replication tag is used
+- hosts: "localhost"
+  vars:
+    atom_replication_config: "replication-config.yml"
+  pre_tasks:
+    - name: "Include replication config file"
+      include_vars: "{{ item }}"
+      with_first_found:
+        - "host_vars/{{ atom_replication_ansible_remote_server }}/{{ atom_replication_config }}"
+        - "files/{{ atom_replication_ansible_remote_server }}/{{ atom_replication_config }}"
+        - "{{ atom_replication_config }}"
+      tags: always
+
+    - name: "Make sure the install-replication tag is used"
+      fail:
+        msg: "Please, use the the install-replication tag. Exiting.."
+      failed_when: "'install-replication' not in hostvars['localhost']['ansible_run_tags']"
+      tags: always
+
+- hosts:
+        - "{{ atom_replication_ansible_remote_server }}"
+        - "{{ hostvars['localhost']['atom_replication_ro_es_host'] }}"
+        - "{{ hostvars['localhost']['atom_replication_edit_es_host'] }}"
+        - "!localhost"
+  vars:
+    atom_replication_config: "replication-config.yml"
+
+
+# We need to run the role on the following hosts because:
+#    * atom_replication_ansible_remote_server: To install the replication ansible script and files
+#    * atom_replication_*_es_host: To configure the backup repo
+- hosts:
+        - "{{ atom_replication_ansible_remote_server }}"
+        - "{{ hostvars['localhost']['atom_replication_ro_es_host'] }}"
+        - "{{ hostvars['localhost']['atom_replication_edit_es_host'] }}"
+        - "!localhost"
+  vars:
+    atom_replication_config: "replication-config.yml"
+
+  pre_tasks:
+
+    - name: "Include replication config file"
+      include_vars: "{{ item }}"
+      with_first_found:
+        - "host_vars/{{ atom_replication_ansible_remote_server }}/{{ atom_replication_config }}"
+        - "files/{{ atom_replication_ansible_remote_server }}/{{ atom_replication_config }}"
+        - "{{ atom_replication_config }}"
+      tags: "always"
+
+  roles:
+    - role: "artefactual.ansible-atom-replication"
+      become: "yes"
+      tags:
+        - "atom-replication"

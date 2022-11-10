@@ -1,0 +1,81 @@
+---
+- name: "install python-httplib2"
+  become: "yes"
+  package:
+    name: "python-httplib2"
+    state: "present"
+
+- name: "check elasticsearch version"
+  uri:
+    url: "http://127.0.0.1:{{ atom_replication_es_port }}"
+    return_content: "yes"
+  register: "es_response"
+
+- set_fact:
+    es_output: "{{ es_response.content|from_json }}"
+- set_fact:
+    es_version: "{{ es_output.version.number }}"
+
+- fail:
+    msg: "ES version <1.0. Repos/Snapshots not supported"
+  when: es_version is version_compare('1.0', '<')
+
+- debug:
+    msg: "ES version >1.6 . path.repo required"
+  when: es_version is version_compare('1.6', '>=')
+
+- name: "add path.repo var to elasticsearch.yml"
+  become: "yes"
+  lineinfile:
+    dest: "/etc/elasticsearch/elasticsearch.yml"
+    regexp: "^path.repo:"
+    line: "path.repo: [\"{{ atom_replication_es_backup_repo_path }}\"]"
+    backup: "yes"
+    owner: "elasticsearch"
+    group: "elasticsearch"
+  when: es_version is version_compare('1.6', '>=')
+  notify: "restart elasticsearch"
+
+- name: "Remove directory to hold repository"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_es_backup_repo_path }}"
+    state: "absent"
+
+- name: "create directory to hold repository"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_es_backup_repo_path }}"
+    state: "directory"
+    mode: "0775"
+    owner: "{{ atom_replication_snapshot_es_user }}"
+    group: "{{ atom_replication_snapshot_es_group }}"
+
+- name: "flush to restart elasticsearch if there were config changes"
+  meta: "flush_handlers"
+
+- name: "wait until elasticsearch port is open (to avoid errors when it was restarted)"
+  wait_for:
+    host: "127.0.0.1"
+    port: "{{ atom_replication_es_port }}"
+
+- name: "add repository to elasticsearch"
+  uri:
+    url: "http://127.0.0.1:{{ atom_replication_es_port }}/_snapshot/{{ atom_replication_es_repo_name }}"
+    method: "PUT"
+    body:
+      type: "fs"
+      settings:
+        location: "{{ atom_replication_es_backup_repo_path }}"
+    body_format: "json"
+
+- name: "restart elasticsearch"
+  become: "yes"
+  service:
+    name: "elasticsearch"
+    state: "restarted"
+
+- name: "wait until elasticsearch port is open (to avoid errors when it was restarted)"
+  wait_for:
+    host: "127.0.0.1"
+    port: "{{ atom_replication_es_port }}"

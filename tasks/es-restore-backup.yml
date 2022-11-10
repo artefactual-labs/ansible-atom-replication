@@ -1,0 +1,53 @@
+---
+
+- name: "Copy ES backup from ansible host to read-only ES server"
+  copy:
+    src: "{{ atom_replication_ansible_host_snapshots_dir }}/es-snapshot.tgz"
+    dest: "{{ atom_replication_ro_es_snapshots_dir }}/es-snapshot.tgz"
+    owner: "{{ atom_replication_snapshot_es_user }}"
+    group: "{{ atom_replication_snapshot_es_group }}"
+
+- name: "Delete ES backup repo directory on ES read-only server"
+  file:
+    path: "{{ atom_replication_es_backup_repo_path }}"
+    state: "absent"
+
+- name: "Create ES backup repo directory on ES read-only server"
+  file:
+    path: "{{ atom_replication_es_backup_repo_path }}"
+    state: "directory"
+    mode: "0775"
+    owner: "{{ atom_replication_snapshot_es_user }}"
+    group: "{{ atom_replication_snapshot_es_group }}"
+
+- name: "Restore ES backup files on ES read-only server"
+  unarchive:
+    src: "{{ atom_replication_ro_es_snapshots_dir }}/es-snapshot.tgz"
+    dest: "{{ atom_replication_es_backup_repo_path }}"
+    owner: "{{ atom_replication_snapshot_es_user }}"
+    group: "{{ atom_replication_snapshot_es_group }}"
+    remote_src: true
+
+- name: "Close index to avoid problems while restoring the backup on ES read-only server"
+  uri:
+    url: "http://127.0.0.1:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}/_close"
+    method: "POST"
+  ignore_errors: yes   # Fails when the index doesn't exist
+
+- name: "Restore ES snapshot"
+  uri:
+    url: "http://127.0.0.1:{{ atom_replication_es_port }}/_snapshot/{{ atom_replication_es_repo_name }}/{{ atom_replication_es_snapshot_name }}/_restore?wait_for_completion=true"
+    method: POST
+    body:
+      indices: "{{ atom_replication_edit_es_index }}"
+      rename_pattern: "(.+)"
+      ignore_unavailable: false
+      include_global_state: false
+      rename_replacement: "{{ atom_replication_ro_es_index }}"
+    body_format: "json"
+    timeout: 1800
+
+- name: "Open ES index on ES read-only server"
+  uri:
+    url: "http://127.0.0.1:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}/_open"
+    method: "POST"

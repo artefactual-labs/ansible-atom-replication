@@ -1,0 +1,32 @@
+---
+
+- name: "Get siteBaseUrl id from setting and setting_i18n"
+  become: "yes"
+  mysql_query:
+    login_db: "{{ atom_replication_ro_db_name }}"
+    login_unix_socket: "{{ atom_replication_ro_mysql_unix_socket }}"
+    query:
+      - SELECT s.id FROM setting s INNER JOIN setting_i18n si ON s.id=si.id AND s.name='siteBaseUrl'
+  register: __siteBaseUrl_id
+  when:
+   - inventory_hostname == atom_replication_ro_mysql_host|string
+
+- name: "Use read-only base URL"
+  become: "yes"
+  mysql_query:
+    login_db: "{{ atom_replication_ro_db_name }}"
+    login_unix_socket: "{{ atom_replication_ro_mysql_unix_socket }}"
+    query:
+      - UPDATE setting_i18n SET value='{{ atom_replication_ro_dnsname }}' WHERE id=%s AND culture='en'
+    positional_args:
+      - "{{ __siteBaseUrl_id.query_result[0][0].id }}"
+  when:
+   - inventory_hostname == atom_replication_ro_mysql_host|string
+
+
+- name: "Update urls for cached xml files in downloads directory"
+  become: "true"
+  shell: |
+    find "{{ atom_replication_ro_downloads_path  }}" -type f -iname '*.xml' -exec sed -i "s/{{ atom_replication_edit_dnsname|regex_escape()|regex_replace('/','\/') }}/{{ atom_replication_ro_dnsname|regex_escape()|regex_replace('/','\/') }}/g" {} \;
+  when:
+   - inventory_hostname == atom_replication_ro_atom_host|string

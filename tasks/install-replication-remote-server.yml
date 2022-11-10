@@ -1,0 +1,261 @@
+---
+
+- name: "Create role directory in ansible remote host"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_ansible_remote_path }}"
+    state: "directory"
+    owner: "{{ atom_replication_ansible_remote_user }}"
+
+- name: "Create ansible-playbook logs directory"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_ansible_remote_path }}/replication-logs"
+    state: "directory"
+    mode: "0775"
+    owner: "{{ atom_replication_ansible_remote_user }}"
+
+- name: "Install virtualenv packages on ansible host"
+  become: "yes"
+  package:
+    name: "{{ atom_replication_venv_packages }}"
+    state: "present"
+
+- name: "Create ansible virtualenv on ansible host (Ubuntu)"
+  become: "no"
+  pip:
+    name: "ansible"
+    version: "4.10"
+    virtualenv: "{{ atom_replication_ansible_remote_path }}/venv-ansible"
+    virtualenv_python: "python3"
+  when:
+    - ansible_os_family == "Debian"
+
+- name: "Create ansible virtualenv on ansible host (CentOS/RedHat)"
+  become: "no"
+  pip:
+    name: "pip"
+    extra_args: "--upgrade"
+    virtualenv: "{{ atom_replication_ansible_remote_path }}/venv-ansible"
+    virtualenv_python: "python3"
+  when:
+    - ansible_os_family == "RedHat"
+
+- name: "Install ansible in virtualenv on ansible host (CentOS/RedHat)"
+  become: "no"
+  pip:
+    name: "ansible"
+    version: "4.10"
+    virtualenv: "{{ atom_replication_ansible_remote_path }}/venv-ansible"
+    virtualenv_python: "python3"
+  when:
+    - ansible_os_family == "RedHat"
+
+- name: "Copy ansible files to replication directory on ansible host"
+  become: "no"
+  copy:
+    src: "{{ item }}"
+    dest: "{{ atom_replication_ansible_remote_path }}/{{ item }}"
+  loop:
+    - "ansible.cfg"
+    - "replication.yml"
+    - "requirements.yml"
+
+- name: "Copy config file to replication directory on ansible host"
+  become: "no"
+  copy: 
+    src: "{{ item }}"
+    dest: "{{ atom_replication_ansible_remote_path }}/config.yml"
+  with_first_found:
+    - "host_vars/{{ inventory_hostname }}/{{ atom_replication_config }}"
+    - "files/{{ inventory_hostname }}/{{ atom_replication_config }}"
+    - "{{ atom_replication_config }}"
+  when:
+    - inventory_hostname == atom_replication_ansible_remote_server|string
+
+# Create dictionary with items: { ansible_host, ansible_ssh_hostname, ansible_ssh_username } for servers:
+# - ES hosts
+# - AtoM hosts
+# - MySQL hosts
+# - Ansible remote hosts
+
+- name: "Create dictionary with items: { ansible_host, ansible_ssh_hostname, ansible_ssh_username } for all hosts"
+  set_fact:
+    __dict_hosts: "{{ __dict_hosts | default([]) + [{ 'ansible_host' : item.host, 'ansible_ssh_hostname' : item.ssh_hostname, 'ansible_ssh_username' : item.ssh_username }] }}"
+  with_items:
+    - { 'host': '{{ atom_replication_edit_atom_host }}', 'ssh_hostname': '{{ atom_replication_edit_atom_ansible_host }}', 'ssh_username': '{{ atom_replication_edit_atom_ansible_user }}' }
+    - { 'host': '{{ atom_replication_ro_atom_host }}', 'ssh_hostname': '{{ atom_replication_ro_atom_ansible_host }}', 'ssh_username': '{{ atom_replication_ro_atom_ansible_user }}' }
+    - { 'host': '{{ atom_replication_edit_es_host }}', 'ssh_hostname': '{{ atom_replication_edit_es_ansible_host }}', 'ssh_username': '{{ atom_replication_edit_es_ansible_user }}' }
+    - { 'host': '{{ atom_replication_ro_es_host }}', 'ssh_hostname': '{{ atom_replication_ro_es_ansible_host }}', 'ssh_username': '{{ atom_replication_ro_es_ansible_user }}' }
+    - { 'host': '{{ atom_replication_edit_mysql_host }}', 'ssh_hostname': '{{ atom_replication_edit_mysql_ansible_host }}', 'ssh_username': '{{ atom_replication_edit_mysql_ansible_user }}' }
+    - { 'host': '{{ atom_replication_ro_mysql_host }}', 'ssh_hostname': '{{ atom_replication_ro_mysql_ansible_host }}', 'ssh_username': '{{ atom_replication_ro_mysql_ansible_user }}' }
+
+# Delete duplicate items in the previous dictionary
+
+- name: "Delete duplicate items in the previous dictionary"
+  set_fact:
+    __dict_hosts: "{{ __dict_hosts | unique }}"
+
+# Create files with templates:
+# - hosts 
+
+- name: "Create ansible inventory file on ansible host"
+  become: "no"
+  template:
+    src: "hosts.j2"
+    dest: "{{ atom_replication_ansible_remote_path }}/hosts"
+
+- name: "Create replication script on ansible host"
+  become: "no"
+  template:
+    src: "replication.sh.j2"
+    dest: "{{ atom_replication_ansible_remote_path }}/site-replication.sh"
+    owner: "{{ atom_replication_ansible_remote_user }}"
+    mode: 0755
+
+# Create rsa key
+- name: "Create rsa for user {{ atom_replication_ansible_remote_user }} on ansible host"
+  user:
+    name: "{{ atom_replication_ansible_remote_user }}"
+    generate_ssh_key: "yes"
+    ssh_key_file: ".ssh/id_rsa"
+  register: "__ansible_host_ssh_key"
+
+- name: "Use StrictHostKeyChecking=no ssh option for {{ atom_replication_ansible_remote_user }} on ansible host"
+  become: "no"
+  lineinfile:
+    create: "yes"
+    path: ".ssh/config"
+    owner: "{{ atom_replication_ansible_remote_user }}"
+    mode: "0600"
+    line: "StrictHostKeyChecking no"
+
+# Copy rsa key to:
+# - ES hosts
+# - atom hosts
+# - MySQL hosts
+
+- name: "Authorize ansible host rsa key on AtoM edit host"
+  authorized_key:
+    user: "{{ atom_replication_edit_atom_ansible_user }}"
+    state: "present"
+    key: "{{ __ansible_host_ssh_key.ssh_public_key }}"
+  delegate_to: "{{ atom_replication_edit_atom_host }}"
+
+- name: "Authorize ansible host rsa key on AtoM read-only host"
+  authorized_key:
+    user: "{{ atom_replication_ro_atom_ansible_user }}"
+    state: "present"
+    key: "{{ __ansible_host_ssh_key.ssh_public_key }}"
+  delegate_to: "{{ atom_replication_ro_atom_host }}"
+
+- name: "Authorize ansible host rsa key on ES edit host"
+  authorized_key:
+    user: "{{ atom_replication_edit_es_ansible_user }}"
+    state: "present"
+    key: "{{ __ansible_host_ssh_key.ssh_public_key }}"
+  delegate_to: "{{ atom_replication_edit_es_host }}"
+
+- name: "Authorize ansible host rsa key on ES read-only host"
+  authorized_key:
+    user: "{{ atom_replication_ro_es_ansible_user }}"
+    state: "present"
+    key: "{{ __ansible_host_ssh_key.ssh_public_key }}"
+  delegate_to: "{{ atom_replication_ro_es_host }}"
+
+- name: "Authorize ansible host rsa key on MySQL edit host"
+  authorized_key:
+    user: "{{ atom_replication_edit_mysql_ansible_user }}"
+    state: "present"
+    key: "{{ __ansible_host_ssh_key.ssh_public_key }}"
+  delegate_to: "{{ atom_replication_edit_mysql_host }}"
+
+- name: "Authorize ansible host rsa key on MySQL read-only host"
+  authorized_key:
+    user: "{{ atom_replication_ro_mysql_ansible_user }}"
+    state: "present"
+    key: "{{ __ansible_host_ssh_key.ssh_public_key }}"
+  delegate_to: "{{ atom_replication_ro_mysql_host }}"
+
+# When using synchronize of uploads or downloads dir, the AtoM edit server must ssh the read-only one without password
+- name: "Allow ssh without passwords beetween AtoM servers"
+  block:
+    - name: "Create rsa for user {{ atom_replication_edit_atom_ansible_user }} on adit AtoM host"
+      user:
+        name: "{{ atom_replication_edit_atom_ansible_user }}"
+        generate_ssh_key: "yes"
+        ssh_key_file: ".ssh/id_rsa"
+      register: "__edit_atom_ssh_key"
+      delegate_to: "{{ atom_replication_edit_atom_host }}"
+    - name: "Use StrictHostKeyChecking=no ssh option for {{ atom_replication_edit_atom_ansible_user }} on adit AtoM host"
+      lineinfile:
+        create: "yes"
+        path: ".ssh/config"
+        owner: "{{ atom_replication_edit_atom_ansible_user }}"
+        mode: "0600"
+        line: "StrictHostKeyChecking no"
+        delegate_to: "{{ atom_replication_edit_atom_host }}"
+    - name: "Authorize AtoM edit rsa key on AtoM read-only host"
+      authorized_key:
+        user: "{{ atom_replication_ro_atom_ansible_user }}"
+        state: "present"
+        key: "{{ __edit_atom_ssh_key.ssh_public_key }}"
+      delegate_to: "{{ atom_replication_ro_atom_host }}"
+  when:
+    - atom_replication_synchronize_uploads_dir|bool or atom_replication_synchronize_downloads_dir|bool
+    - atom_replication_edit_atom_host|string != atom_replication_ansible_remote_server|string
+  #End block
+
+# Create TMP dirs on ansible, ES and MySQL hosts
+
+- name: "Create TMP directory on ansible host"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_ansible_host_snapshots_dir }}"
+    state: "directory"
+    mode: "0755"
+    owner: "{{ atom_replication_ansible_remote_user }}"
+
+- name: "Create TMP directory on edit ES host"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_edit_es_snapshots_dir }}"
+    state: "directory"
+    mode: "0755"
+    owner: "{{ atom_replication_edit_es_ansible_user }}"
+  delegate_to: "{{ atom_replication_edit_es_host }}"
+
+- name: "Create TMP directory on read-only ES host"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_ro_es_snapshots_dir }}"
+    state: "directory"
+    mode: "0755"
+    owner: "{{ atom_replication_ro_es_ansible_user }}"
+  delegate_to: "{{ atom_replication_ro_es_host }}"
+
+- name: "Create TMP directory on edit MySQL host"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_edit_mysql_snapshots_dir }}"
+    state: "directory"
+    mode: "0755"
+    owner: "{{ atom_replication_edit_mysql_ansible_user }}"
+  delegate_to: "{{ atom_replication_edit_mysql_host }}"
+
+- name: "Create TMP directory on read-only MySQL host"
+  become: "yes"
+  file:
+    path: "{{ atom_replication_ro_mysql_snapshots_dir }}"
+    state: "directory"
+    mode: "0755"
+    owner: "{{ atom_replication_ro_mysql_ansible_user }}"
+  delegate_to: "{{ atom_replication_ro_mysql_host }}"
+
+
+# Download role with ansible-galaxy
+- name: "Update roles with ansible-galaxy on ansible host"
+  become: "no"
+  command:  venv-ansible/bin/ansible-galaxy install -f -p roles/ -r requirements.yml
+  args:
+     chdir: "{{ atom_replication_ansible_remote_path }}"

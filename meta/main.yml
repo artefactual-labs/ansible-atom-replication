@@ -1,0 +1,20 @@
+galaxy_info:
+  author: Artefactual Systems
+  description: An ansible role for AtoM replication
+  company: Artefactual Systems
+  min_ansible_version: 2.10
+  platforms:
+  - name: EL
+    versions:
+    - 7
+  - name: Ubuntu
+    versions:
+    - bionic
+    - focal
+
+collections:
+- ansible.posix
+- community.general
+- community.mysql
+
+dependencies: []

@@ -1,0 +1,14 @@
+---
+# handlers file for atom-replication-role
+
+  - name: "restart elasticsearch"
+    service:
+      name: "elasticsearch"
+      state: "restarted"
+    listen: "elasticsearch"
+
+  - name: "restart nginx"
+    service:
+      name: "nginx"
+      state: "restarted"
+    listen: "nginx"

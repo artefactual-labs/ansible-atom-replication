@@ -1,0 +1,177 @@
+---
+# tasks file for atom-replication-role
+
+
+- name: "Load OS-specific vars"
+  include_vars: "{{ ansible_os_family }}.yml"
+  tags:
+    - "always" # inocuous to use always here
+
+## Configure ansible virtualenv, ssh connections and replication script in remote server
+#  The best server to install the replication script is the edit nginx host.
+- include: "install-replication-remote-server.yml"
+  run_once: true
+  when:
+    - inventory_hostname == atom_replication_ansible_remote_server|string
+  tags:
+    - "never"
+    - "install-replication"
+
+## Elasticsearch configure repo to take snapshots on ES servers
+- include: "configure-es-backup.yml"
+  when: >
+    inventory_hostname == atom_replication_edit_es_host|string or
+    inventory_hostname == atom_replication_ro_es_host|string
+  tags:
+    - "never"
+    - "install-replication"
+    - "configure-es-backup"
+
+## Stop nginx service in AtoM edit host
+- name: "Stop nginx server on AtoM edit host"
+  become: "yes"
+  service:
+    name: "nginx"
+    state: "stopped"
+  notify:
+    - "restart nginx"
+  when:
+    - inventory_hostname == atom_replication_edit_atom_host|string
+  tags:
+    - "es-clone-index"
+    - "es-ro-restore"
+    - "mysql-restore-backup"
+
+## Elasticsearch backup tasks
+- include: "es-backup.yml"
+  when:
+    - inventory_hostname == atom_replication_edit_es_host|string
+    - atom_replication_edit_es_host|string != atom_replication_ro_es_host|string
+  tags:
+    - "es-ro-backup"
+
+## End Elasticsearch backup tasks
+
+## MySQL backup tasks
+
+# To take ro backups of some tables: (atom_replication_ro_backup_tables)
+- include: "mysql-ro-backup-tables.yml"
+  when:
+    - inventory_hostname == atom_replication_ro_mysql_host|string
+  tags:
+    - "mysql-ro-backup"
+
+- include: "mysql-edit-backup.yml"
+  when:
+    - inventory_hostname == atom_replication_edit_mysql_host|string 
+    - atom_replication_edit_mysql_host|string != atom_replication_ro_mysql_host|string
+  tags:
+    - "mysql-edit-backup"
+
+## End MySQL backup tasks
+
+## Restore database and ES index in read-only server
+
+- include: "abort-replication.yml"
+  when:
+    - "ansible_play_batch | length != ansible_play_hosts_all | length"
+  throttle: 1
+  tags:
+    - "always"
+
+# When edit and ro indices in the same ES server
+- include: "es-clone-index.yml"
+  when:
+    - inventory_hostname == atom_replication_edit_es_host|string
+    - atom_replication_edit_es_host|string == atom_replication_ro_es_host|string
+  tags:
+    - "es-clone-index"
+    - "es-ro-restore"
+
+# When edit and ro indices in different ES servers
+- include: "es-restore-backup.yml"
+  when:
+    - inventory_hostname == atom_replication_ro_es_host|string
+    - atom_replication_edit_es_host|string != atom_replication_ro_es_host|string
+  tags:
+    - "es-ro-restore"
+
+# When edit and ro databases in the same MySQL server
+- include: "mysql-db-copy.yml"
+  when:
+    - inventory_hostname == atom_replication_edit_mysql_host|string
+    - atom_replication_edit_mysql_host|string == atom_replication_ro_mysql_host|string
+  tags:
+    - "mysql-restore-backup"
+
+# When edit and ro databases in different MySQL servers
+- include: "mysql-restore-backup.yml"
+  when:
+    - inventory_hostname == atom_replication_ro_mysql_host|string
+    - atom_replication_edit_mysql_host|string != atom_replication_ro_mysql_host|string
+  tags:
+    - "mysql-restore-backup"
+
+## End Restore database and ES index in read-only server
+
+- include: "abort-replication.yml"
+  when:
+    - "ansible_play_batch | length != ansible_play_hosts_all | length"
+  throttle: 1
+  tags:
+    - "always"
+
+## Synchronize AtoM uploads and downloads
+
+- include: "atom-sync-uploads-downloads.yml"
+  when:
+    - inventory_hostname == atom_replication_edit_atom_host|string
+    - atom_replication_synchronize_uploads_dir|bool or atom_replication_synchronize_downloads_dir|bool
+  tags:
+    - "atom-sync-upload-downloads"
+
+## Replication Post Actions
+
+- include: "atom-sync-baseurl.yml"
+  when:
+    - atom_replication_synchronize_baseurl|bool
+    # host limitation conditional in playbook tasks
+  tags:
+    - "atom-sync-baseurl"
+
+- include: "atom-sync-clipboard.yml"
+  when:
+    - inventory_hostname == atom_replication_ro_mysql_host|string
+    - atom_replication_synchronize_clipboard|bool
+  tags:
+    - "atom-sync-clipboard"
+
+- include: "atom-delete-clipboard-obsolete-items.yml"
+  when:
+    - atom_replication_clipboard_delete_obsolete_items|bool
+    - inventory_hostname == atom_replication_ro_mysql_host|string
+  tags:
+    - "atom-clipboard-delete-obsolete-items"
+
+- include: "atom-ro-restart-services-and-symfony-commands.yml"
+  when:
+    - inventory_hostname == atom_replication_ro_atom_host|string
+  tags:
+    - "atom-ro-restart-services-and-symfony-commands"
+
+## Configure cron task
+- include: "cron.yml"
+  when:
+    - inventory_hostname == atom_replication_ansible_remote_server|string 
+  tags:
+    - "cron"
+    - "install-replication"
+
+## Start nginx service in AtoM edit host
+- name: "Start nginx server on AtoM edit host"
+  become: "yes"
+  service:
+    name: "nginx"
+    state: "started"
+  when:
+    - inventory_hostname == atom_replication_edit_atom_host|string

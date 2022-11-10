@@ -1,0 +1,28 @@
+---
+
+# The idea is based on the special variables ansible_play_batch and ansible_play_hosts_all
+#
+#   * ansible_play_hosts_all: List of all the hosts that were targeted by the play
+#
+#   * ansible_play_batch: List of active hosts in the current play run limited by the serial, 
+#     aka ‘batch’. Failed/Unreachable hosts are not considered ‘active’.
+#
+#  So this script must be run when:
+#           "ansible_play_batch | length != ansible_play_hosts_all | length"
+#  And it happens when any task has failed in any host, so the role run must be stopped to 
+#  avoid problems in the read-only site. This file includes tasks to start services stopped when 
+#  running the replicastion script
+
+# The nginx service on AtoM edit host was stopped previously, so the service is going to be
+# started before aborting the replication
+- name: "Restart nginx server on AtoM edit host"
+  become: "yes"
+  service:
+    name: "nginx"
+    state: "restarted"
+  when:
+    - inventory_hostname == atom_replication_edit_atom_host|string
+
+- name: "Send abort signal when some task has failed"
+  shell: /bin/false
+  throttle: 1

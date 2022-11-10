@@ -1,0 +1,70 @@
+---
+
+- name: "Delete read-only index"
+  uri:
+    url: "http://127.0.0.1:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}"
+    method: "DELETE"
+  ignore_errors: True
+
+- name: "Install curl and jq packages on elasticsearch server"
+  become: "yes"
+  package:
+    name:
+      - curl
+      - jq
+    state: "present"
+
+- name: "Get the edit index mapping"
+  shell: 
+    curl -s http://127.0.0.1:{{ atom_replication_es_port }}/{{ atom_replication_edit_es_index }} | jq '."{{ atom_replication_edit_es_index }}" | del(.settings.index.provided_name, .settings.index.creation_date, .settings.index.uuid, .settings.index.version)' 
+  register: "__edit_es_index_mapping"
+
+- name: "Create the read-only index with the edit mapping"
+  uri:
+    url: "http://127.0.0.1:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}"
+    headers:
+      Content-Type: "application/json"
+    method: "PUT"
+    body_format: "json"
+    body: "{{ __edit_es_index_mapping.stdout | from_json }}"
+
+- name: "Disable ES replication and refresh interval, tune translog on read-only index"
+  uri:
+    url: "http://127.0.0.1:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}/_settings"
+    headers:
+      Content-Type: "application/json"
+    method: "PUT"
+    body_format: "json"
+    body:
+      number_of_replicas: 0
+      refresh_interval: -1
+      translog.durability: "async"
+      translog.flush_threshold_size: "1024MB"
+
+- name: "Reindex the edit index on the new read-only index"
+  uri:
+    url: "http://127.0.0.1:{{ atom_replication_es_port }}/_reindex"
+    timeout: 3600
+    headers:
+      Content-Type: "application/json"
+    method: "POST"
+    body_format: "json"
+    body:
+      conflicts: "proceed"
+      source:
+        index: "{{ atom_replication_edit_es_index }}"
+        size: 10000
+      dest:
+        index: "{{ atom_replication_ro_es_index }}"
+
+- name: "Restore default values on read-only index"
+  uri:
+    url: "http://127.0.0.1:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}/_settings"
+    headers:
+      Content-Type: "application/json"
+    method: "PUT"
+    body_format: "json"
+    body:
+      refresh_interval: null
+      translog.durability: "request"
+      translog.flush_threshold_size: "512MB"

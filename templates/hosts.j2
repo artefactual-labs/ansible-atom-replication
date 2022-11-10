@@ -1,0 +1,7 @@
+{% for host in __dict_hosts %}
+{%   if host.ansible_host == atom_replication_ansible_remote_server -%}
+{{ host.ansible_host }}	ansible_connection=local
+{%   else -%}
+{{ host.ansible_host }}	ansible_ssh_host={{ host.ansible_ssh_hostname }} ansible_ssh_user={{ host.ansible_ssh_username }}
+{%   endif %}
+{% endfor %}

@@ -1,0 +1,66 @@
+---
+
+- name: "Dump read-only tables that will not be replicated on MySQL read-only server"
+  become: "yes"
+  mysql_db:
+    name: "{{ atom_replication_ro_db_name }}"
+    login_unix_socket: "{{ atom_replication_ro_mysql_unix_socket }}"
+    single_transaction: "yes"
+    dump_extra_args: "--add-drop-table --skip-dump-date --tables {{ item }}"
+    state: "dump"
+    target: "{{ atom_replication_ro_mysql_snapshots_dir }}/mysql_ro_table_{{ item }}.sql"
+  loop: "{{ atom_replication_ro_backup_tables }}"
+
+- name: "Take user table backup as tsv file on MySQL read-only server when synchronizing clipboards and users"
+  block:
+    - name: "Dump user table to tsv file"
+      become: yes
+      shell: >
+        mysql {{ atom_replication_ro_db_name|quote }} --batch --execute "SELECT * FROM user;" >
+        "{{ atom_replication_ro_mysql_snapshots_dir }}/mysql_ro_table_user.tsv"
+
+    - name: "Stat {{ atom_replication_ro_mysql_snapshots_dir }}/mysql_ro_table_user.tsv"
+      become: yes
+      stat:
+        path: "{{ atom_replication_ro_mysql_snapshots_dir }}/mysql_ro_table_user.tsv"
+      register: __stat_result_user_tsv
+
+    - name: "fail if {{ atom_replication_ro_mysql_snapshots_dir }}/mysql_ro_table_user.tsv does not exist"
+      fail:
+        msg: "{{ atom_replication_ro_mysql_snapshots_dir }}/mysql_ro_table_user.tsv does not exist!"
+      when: __stat_result_user_tsv.stat.exists == false
+
+    - name: "Dump clipboard_save_item table"
+      become: "yes"
+      mysql_db:
+        name: "{{ atom_replication_ro_db_name }}"
+        login_unix_socket: "{{ atom_replication_ro_mysql_unix_socket }}"
+        single_transaction: "yes"
+        dump_extra_args: "--add-drop-table --skip-dump-date --tables clipboard_save_item"
+        state: "dump"
+        target: "{{ atom_replication_ro_mysql_snapshots_dir }}/mysql_ro_table_clipboard_save_item.sql"
+
+    # Swap the user_id column for the user's email in the clipboard_save output so
+    # that the clipboards can be restored by email later (in case the ID for the
+    # user changes)
+    - name: "dump clipboard_save table to tsv file"
+      become: yes
+      shell: >
+        mysql {{ atom_replication_ro_db_name|quote }} --batch --execute
+        "SELECT u.email, c.id, c.password, c.created_at FROM user u INNER JOIN clipboard_save c ON c.user_id=u.id" >
+        "{{ atom_replication_ro_mysql_snapshots_dir }}/mysql_ro_table_clipboard_save.tsv"
+
+    - name: "Stat {{ atom_replication_ro_mysql_snapshots_dir }}/mysql_ro_table_clipboard_save.tsv"
+      become: yes
+      stat:
+        path: "{{ atom_replication_ro_mysql_snapshots_dir }}/mysql_ro_table_clipboard_save.tsv"
+      register: __stat_result_clipboard_save_tsv
+
+    - name: "fail if {{ atom_replication_ro_mysql_snapshots_dir }}/mysql_ro_table_clipboard_save.tsv does not exist"
+      fail:
+        msg: "{{ atom_replication_ro_mysql_snapshots_dir }}/mysql_ro_table_clipboard_save.tsv does not exist!"
+      when: __stat_result_clipboard_save_tsv.stat.exists == false
+
+  when:
+    - atom_replication_synchronize_clipboard|bool
+  #End block
