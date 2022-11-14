@@ -1,4 +1,4 @@
 ---
 - src: https://github.com/artefactual-labs/ansible-atom-replication
-  version: dev/first-version
+  version: main 
   name: artefactual.atom-replication
