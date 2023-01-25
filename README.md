@@ -152,7 +152,18 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 | `atom_replication_clipboard_delete_obsolete_items` | False | Delete read-only db clipboard save items that reference slugs which no longer exist. This variable is not related to `atom_replication_synchronize_clipboard`, both variables are related to different task files |
 | `atom_replication_ro_nginx_restart_services` | [ memcached ] | List of service names that will be restarted at the end of the role on the AtoM read-only server. It is recommended to have at least the memcached and php-fpm services to clean the cache |
 | `atom_replication_ro_nginx_symfony_commands` | [ cc ] | List of php symfony commands to be run at the end of the role. It is recommended to have at least the `cc` command |
-
+| `atom_replication_email_notification_enabled`| False | Boolean variable that enables the email notification. Usefull when not running the replication using a cronjob and you desire to send an email notificacion with status and ansible log. The next variables are not used on crontab email notification |
+| `atom_replication_email_notification_host` | localhost | Mail server. This must be a FQDN or IP address |
+| `atom_replication_email_notification_port` | 25 | Mail server port. This must be a valid integer between 1 and 65534 |
+| `atom_replication_email_notification_subject` | Ansible replication playbook log | Notification email's subject. The playbook adds automatically the playbook status (`ERROR:` or `SUCCESS:`) at the beginning) |
+| `atom_replication_email_notification_body` | Find the replication playbook log in the attached file | Notification email's body |
+| `atom_replication_email_notification_secure` | try | See secure option at [ansible mail module doc](https://docs.ansible.com/ansible/latest/collections/community/general/mail_module.html) |
+| `atom_replication_email_notification_sender` | root | The email-address the mail is sent from. May contain address and phrase |
+| `atom_replication_email_notification_to` | test@example.com | The email-address(es) the mail is being send to. This is a list, which may contain address and phrase portions |
+| `atom_replication_email_notification_cc` | [] | The email-address(es) the mail is being copied to. This is a list, which may contain address and phrase portions |
+| `atom_replication_email_notification_subtype` | plain | The minor mime type, can be either `plain` or `html` |
+| `atom_replication_email_notification_username` | Not used | If SMTP requires username (Optional) |
+| `atom_replication_email_notification_password` | Not used | If SMTP requires password (Optional) |
 
 Dependencies
 ------------

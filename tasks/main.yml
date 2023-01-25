@@ -1,6 +1,16 @@
 ---
 # tasks file for atom-replication-role
 
+- name: "Email notification: Define playbook status"
+  set_fact:
+    _playbook_status: "ERROR"
+  notify: "send notification email"
+  changed_when: True
+  tags: "always" # inocuous to use always here
+  when:
+    - ansible_env.ANSIBLE_LOG_PATH is defined
+    - inventory_hostname == atom_replication_ansible_remote_server|string
+    - atom_replication_email_notification_enabled|bool
 
 - name: "Load OS-specific vars"
   include_vars: "{{ ansible_os_family }}.yml"
@@ -175,3 +185,14 @@
     state: "started"
   when:
     - inventory_hostname == atom_replication_edit_atom_host|string
+
+## Set playbook status for email notification
+- name: "Email notification: Set playbook status as SUCCESS"
+  set_fact:
+    _playbook_status: "SUCCESS"
+  tags: "always" # inocuous to use always here
+  when:
+    - ansible_env.ANSIBLE_LOG_PATH is defined
+    - inventory_hostname == atom_replication_ansible_remote_server|string
+    - ansible_play_batch | length == ansible_play_hosts_all | length
+    - atom_replication_email_notification_enabled|bool
