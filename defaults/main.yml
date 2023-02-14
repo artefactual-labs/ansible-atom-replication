@@ -135,3 +135,21 @@ atom_replication_ro_nginx_restart_services:
 atom_replication_ro_nginx_symfony_commands:
   - "cc"
 #  - "tools:expire-data --older-than=$(date +'%Y-%m-%d' -d '-15 days') clipboard,job -f"
+
+
+# Email notification variables. The following variables are not used on crontab notifications.
+# See https://docs.ansible.com/ansible/latest/collections/community/general/mail_module.html for variables
+atom_replication_email_notification_enabled: False
+atom_replication_email_notification_host: "localhost"
+atom_replication_email_notification_port: 25
+atom_replication_email_notification_subject: "Ansible replication playbook log"
+atom_replication_email_notification_body: "Find the replication playbook log in the attached file"
+atom_replication_email_notification_secure: "try"
+atom_replication_email_notification_sender: "root"
+atom_replication_email_notification_to:
+  - "test@example.com"
+# atom_replication_email_notification_cc:
+#  - "test2@example.com"
+atom_replication_email_notification_subtype: "plain"
+# atom_replication_email_notification_username: "artefactual"
+# atom_replication_email_notification_password: "password"
