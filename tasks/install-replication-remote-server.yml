@@ -31,7 +31,7 @@
   when:
     - ansible_os_family == "Debian"
 
-- name: "Create ansible virtualenv on ansible host (CentOS/RedHat)"
+- name: "Create ansible virtualenv on ansible host (CentOS/RedHat 7)"
   become: "no"
   pip:
     name: "pip"
@@ -40,14 +40,25 @@
     virtualenv_python: "python3"
   when:
     - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version | int < 8
 
-- name: "Install ansible in virtualenv on ansible host (CentOS/RedHat)"
+- name: "Create ansible virtualenv on ansible host (CentOS/RedHat > 7)"
+  become: "no"
+  pip:
+    name: "pip"
+    extra_args: "--upgrade"
+    virtualenv: "{{ atom_replication_ansible_remote_path }}/venv-ansible"
+    virtualenv_command: "python3 -m venv"
+  when:
+    - ansible_os_family == "RedHat"
+    - ansible_distribution_major_version | int >= 8
+
+- name: "Install ansible in virtualenv on ansible host"
   become: "no"
   pip:
     name: "ansible"
     version: "4.10"
     virtualenv: "{{ atom_replication_ansible_remote_path }}/venv-ansible"
-    virtualenv_python: "python3"
   when:
     - ansible_os_family == "RedHat"
 
@@ -113,12 +124,13 @@
     owner: "{{ atom_replication_ansible_remote_user }}"
     mode: 0755
 
-# Create rsa key
-- name: "Create rsa for user {{ atom_replication_ansible_remote_user }} on ansible host"
+# Create ed25519 key
+- name: "Create ed25519 for user {{ atom_replication_ansible_remote_user }} on ansible host"
   user:
     name: "{{ atom_replication_ansible_remote_user }}"
     generate_ssh_key: "yes"
-    ssh_key_file: ".ssh/id_rsa"
+    ssh_key_type: "ed25519"
+    ssh_key_file: ".ssh/id_ed25519"
   register: "__ansible_host_ssh_key"
 
 - name: "Use StrictHostKeyChecking=no ssh option for {{ atom_replication_ansible_remote_user }} on ansible host"
@@ -130,47 +142,47 @@
     mode: "0600"
     line: "StrictHostKeyChecking no"
 
-# Copy rsa key to:
+# Copy ed25519 key to:
 # - ES hosts
 # - atom hosts
 # - MySQL hosts
 
-- name: "Authorize ansible host rsa key on AtoM edit host"
+- name: "Authorize ansible host ed25519 key on AtoM edit host"
   authorized_key:
     user: "{{ atom_replication_edit_atom_ansible_user }}"
     state: "present"
     key: "{{ __ansible_host_ssh_key.ssh_public_key }}"
   delegate_to: "{{ atom_replication_edit_atom_host }}"
 
-- name: "Authorize ansible host rsa key on AtoM read-only host"
+- name: "Authorize ansible host ed25519 key on AtoM read-only host"
   authorized_key:
     user: "{{ atom_replication_ro_atom_ansible_user }}"
     state: "present"
     key: "{{ __ansible_host_ssh_key.ssh_public_key }}"
   delegate_to: "{{ atom_replication_ro_atom_host }}"
 
-- name: "Authorize ansible host rsa key on ES edit host"
+- name: "Authorize ansible host ed25519 key on ES edit host"
   authorized_key:
     user: "{{ atom_replication_edit_es_ansible_user }}"
     state: "present"
     key: "{{ __ansible_host_ssh_key.ssh_public_key }}"
   delegate_to: "{{ atom_replication_edit_es_host }}"
 
-- name: "Authorize ansible host rsa key on ES read-only host"
+- name: "Authorize ansible host ed25519 key on ES read-only host"
   authorized_key:
     user: "{{ atom_replication_ro_es_ansible_user }}"
     state: "present"
     key: "{{ __ansible_host_ssh_key.ssh_public_key }}"
   delegate_to: "{{ atom_replication_ro_es_host }}"
 
-- name: "Authorize ansible host rsa key on MySQL edit host"
+- name: "Authorize ansible host ed25519 key on MySQL edit host"
   authorized_key:
     user: "{{ atom_replication_edit_mysql_ansible_user }}"
     state: "present"
     key: "{{ __ansible_host_ssh_key.ssh_public_key }}"
   delegate_to: "{{ atom_replication_edit_mysql_host }}"
 
-- name: "Authorize ansible host rsa key on MySQL read-only host"
+- name: "Authorize ansible host ed25519 key on MySQL read-only host"
   authorized_key:
     user: "{{ atom_replication_ro_mysql_ansible_user }}"
     state: "present"
@@ -180,22 +192,23 @@
 # When using synchronize of uploads or downloads dir, the AtoM edit server must ssh the read-only one without password
 - name: "Allow ssh without passwords beetween AtoM servers"
   block:
-    - name: "Create rsa for user {{ atom_replication_edit_atom_ansible_user }} on adit AtoM host"
+    - name: "Create ed25519 for user {{ atom_replication_edit_atom_ansible_user }} on edit AtoM host"
       user:
         name: "{{ atom_replication_edit_atom_ansible_user }}"
         generate_ssh_key: "yes"
-        ssh_key_file: ".ssh/id_rsa"
+        ssh_key_type: "ed25519"
+        ssh_key_file: ".ssh/id_ed25519"
       register: "__edit_atom_ssh_key"
       delegate_to: "{{ atom_replication_edit_atom_host }}"
-    - name: "Use StrictHostKeyChecking=no ssh option for {{ atom_replication_edit_atom_ansible_user }} on adit AtoM host"
+    - name: "Use StrictHostKeyChecking=no ssh option for {{ atom_replication_edit_atom_ansible_user }} on edit AtoM host"
       lineinfile:
         create: "yes"
         path: ".ssh/config"
         owner: "{{ atom_replication_edit_atom_ansible_user }}"
         mode: "0600"
         line: "StrictHostKeyChecking no"
-        delegate_to: "{{ atom_replication_edit_atom_host }}"
-    - name: "Authorize AtoM edit rsa key on AtoM read-only host"
+      delegate_to: "{{ atom_replication_edit_atom_host }}"
+    - name: "Authorize AtoM edit ed25519 key on AtoM read-only host"
       authorized_key:
         user: "{{ atom_replication_ro_atom_ansible_user }}"
         state: "present"

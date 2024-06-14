@@ -1,5 +1,13 @@
 ---
 
-atom_replication_venv_packages:
+atom_replication_venv_packages_el7:
+  - "git" # Needed for ansible-galaxy
   - "python36-virtualenv"
   - "python-virtualenv"
+
+# Don't install virtualenv packages (don't exist) on EL8-9 because we are using -m venv
+atom_replication_venv_packages_el9:
+  - "git" # Needed for ansible-galaxy
+
+atom_replication_venv_packages: "{{ atom_replication_venv_packages_el7 if ansible_distribution_major_version|int<8 else atom_replication_venv_packages_el9 }}"
+

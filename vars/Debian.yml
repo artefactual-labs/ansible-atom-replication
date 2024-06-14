@@ -1,6 +1,7 @@
 ---
 
 atom_replication_venv_packages:
+  - "git" # Needed for ansible-galaxy
   - "python3-virtualenv"
   - "virtualenv"
 

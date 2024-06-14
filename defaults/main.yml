@@ -27,7 +27,7 @@ atom_replication_ro_mysql_ansible_host: "{{ atom_replication_edit_atom_ansible_h
 atom_replication_edit_mysql_ansible_host: "{{ atom_replication_edit_atom_ansible_host }}"
 
 # Needed to rsync uploads and downloads from AtoM edit host to AtoM read-only host
-atom_replication_edit_ssh_pubkey_file: "/home/{{ atom_replication_edit_atom_ansible_user }}/.ssh/id_rsa"
+atom_replication_edit_ssh_pubkey_file: "/home/{{ atom_replication_edit_atom_ansible_user }}/.ssh/id_ed25519"
 
 # Temporary Directories, Users and Groups
 
