@@ -109,6 +109,11 @@ atom_replication_synchronize_downloads_dir: False
 # Nginx users
 atom_replication_ro_nginx_user: "{% if ansible_os_family == 'RedHat' %}nginx{% elif ansible_os_family == 'Debian' %}www-data{% endif %}"
 
+# Restore Site Title in read-only AtoM (Optional)
+# Check running: "select * from setting_i18n where id=189;" in both databases
+atom_replication_restore_sitetitle: False
+atom_replication_ro_sitetitle: "Read Only Site"
+
 # Synchronize baseurl (Optional)
 # Check running: "select value from setting_i18n where id='124';" in both databases
 atom_replication_synchronize_baseurl: False

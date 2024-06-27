@@ -1,0 +1,24 @@
+---
+
+- name: "Get siteTitle id from setting and setting_i18n"
+  become: "yes"
+  mysql_query:
+    login_db: "{{ atom_replication_ro_db_name }}"
+    login_unix_socket: "{{ atom_replication_ro_mysql_unix_socket }}"
+    query:
+      - SELECT s.id FROM setting s INNER JOIN setting_i18n si ON s.id=si.id AND s.name='siteTitle'
+  register: __siteTitle_id
+  when:
+   - inventory_hostname == atom_replication_ro_mysql_host|string
+
+- name: "Use read-only siteTitle"
+  become: "yes"
+  mysql_query:
+    login_db: "{{ atom_replication_ro_db_name }}"
+    login_unix_socket: "{{ atom_replication_ro_mysql_unix_socket }}"
+    query:
+      - UPDATE setting_i18n SET value='{{ atom_replication_ro_sitetitle }}' WHERE id=%s AND culture='en'
+    positional_args:
+      - "{{ __siteTitle_id.query_result[0][0].id }}"
+  when:
+   - inventory_hostname == atom_replication_ro_mysql_host|string
