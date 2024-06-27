@@ -145,6 +145,8 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 | `atom_replication_synchronize_downloads_dir` | False | Boolean variable that enables the synchronization of the downloads directories |
 | `atom_replication_synchronize_uploads_dir` | False | Boolean variable that enables the synchronization of the uploads directories |
 | `atom_replication_ro_nginx_user` | `{% if ansible_os_family == 'RedHat' %}nginx{% elif ansible_os_family == 'Debian' %}www-data{% endif %}` | Nginx user on the AtoM read-only  server. It is needed to run the php symfony commands |
+| `atom_replication_restore_sitetitle` | False | When variable is set to True the role will change the siteTitle on the read-only database, using the `atom_replication_ro_sitetitle` value |
+| `atom_replication_ro_sitetitle` | Read Only Site | String used as siteTitle in the setting_i18n table (read-only database) when `atom_replication_restore_sitetitle=True` |
 | `atom_replication_synchronize_baseurl` | False | When not using the read-only base URL on the edit AtoM server, setting this variable as `True` the role will change the base URL on read-only site on all files in the downloads directory |
 | `atom_replication_edit_dnsname` | http://edit.accesstomemory.org/ | String that will be replaced by the `atom_replication_ro_dnsname` string on the AtoM read-only downloads files when `atom_replication_synchronize_baseurl=True` |
 | `atom_replication_ro_dnsname` | http://ro.accesstomemory.org/ | String that replaces the `atom_replication_edit_dnsname` string on the AtoM read-only downloads files when `atom_replication_synchronize_baseurl=True` |
