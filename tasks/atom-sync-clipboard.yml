@@ -49,7 +49,7 @@
     login_db: "{{ atom_replication_ro_db_name }}"
     login_unix_socket: "{{ atom_replication_ro_mysql_unix_socket }}"
     query:
-      - INSERT INTO clipboard_save(id, user_id, password, created_at) VALUES (%s, (SELECT id FROM user WHERE email=%s' LIMIT 1),%s,%s)
+      - INSERT INTO clipboard_save(id, user_id, password, created_at) VALUES (%s, (SELECT id FROM user WHERE email=%s LIMIT 1),%s,%s)
     positional_args:
       - "{{ item.id|int }}"
       - "{{ item.email }}"
