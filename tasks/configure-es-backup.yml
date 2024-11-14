@@ -6,6 +6,9 @@
     state: "present"
 
 - name: "check elasticsearch version"
+  environment:
+    http_proxy: ""
+    https_proxy: ""
   uri:
     url: "http://127.0.0.1:{{ atom_replication_es_port }}"
     return_content: "yes"
@@ -60,6 +63,9 @@
     port: "{{ atom_replication_es_port }}"
 
 - name: "add repository to elasticsearch"
+  environment:
+    http_proxy: ""
+    https_proxy: ""
   uri:
     url: "http://127.0.0.1:{{ atom_replication_es_port }}/_snapshot/{{ atom_replication_es_repo_name }}"
     method: "PUT"
