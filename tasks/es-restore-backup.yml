@@ -28,6 +28,11 @@
     group: "{{ atom_replication_snapshot_es_group }}"
     remote_src: true
 
+- name: "Temporarily stop nginx (to prevent index reopening)"
+  service:
+    name: nginx
+    state: stopped
+
 - name: "Close index to avoid problems while restoring the backup on ES read-only server"
   uri:
     url: "http://127.0.0.1:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}/_close"
@@ -51,3 +56,8 @@
   uri:
     url: "http://127.0.0.1:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}/_open"
     method: "POST"
+
+- name: "Start nginx after index restore"
+  service:
+    name: nginx
+    state: started
