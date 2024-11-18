@@ -12,12 +12,19 @@
     state: "dump"
     target: "{{ atom_replication_edit_mysql_snapshots_dir }}/mysql-edit-snapshot.sql.gz"
 
-- name: "Fetch MySQL backup on ansible host"
-  fetch:
+- name: "Fix owner/perms of mysql dump tarball"
+  file:
+    path: "{{ atom_replication_edit_mysql_snapshots_dir }}/mysql-edit-snapshot.sql.gz"
+    owner: "{{ atom_replication_edit_atom_ansible_user }}"
+    mode: "0664"
+  become: yes
+
+- name: "Copy MySQL backup to Ansible host (with synchronize)"
+  synchronize:
+    mode: "pull"
     src: "{{ atom_replication_edit_mysql_snapshots_dir }}/mysql-edit-snapshot.sql.gz"
     dest: "{{ atom_replication_ansible_host_snapshots_dir }}/mysql-edit-snapshot.sql.gz"
-    flat: "true"
-  no_log: true
+  become: no
 
 - name: "Take user table backup on MySQL edit server when synchronizing clipboards and users"
   block:
@@ -31,12 +38,20 @@
         state: "dump"
         target: "{{ atom_replication_edit_mysql_snapshots_dir }}/mysql_ro_table-user.sql.gz"
 
-    - name: "Fetch MySQL user table backup on ansible host"
-      fetch:
+    - name: "Fix owner/perms of user table mysql dump tarball"
+      file:
+        path: "{{ atom_replication_edit_mysql_snapshots_dir }}/mysql_ro_table-user.sql.gz"
+        owner: "{{ atom_replication_edit_atom_ansible_user }}"
+        mode: "0664"
+      become: yes
+
+    - name: "Copy MySQL user table backup to Ansible host (with synchronize)"
+      synchronize:
+        mode: "pull"
         src: "{{ atom_replication_edit_mysql_snapshots_dir }}/mysql_ro_table-user.sql.gz"
         dest: "{{ atom_replication_ansible_host_snapshots_dir }}/mysql_ro_table-user.sql.gz"
-        flat: "true"
-      no_log: true
+      become: no
+
   when:
     - atom_replication_synchronize_clipboard|bool
   #End block
