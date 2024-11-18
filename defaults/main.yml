@@ -69,6 +69,13 @@ atom_replication_ansible_remote_cron_mailto: ""
 # Assuming all ES servers are going to use the same port
 atom_replication_es_port: "9200"
 
+atom_replication_edit_es_base_url_schema: "http"
+atom_replication_edit_es_base_url_host: "127.0.0.1"
+atom_replication_ro_es_base_url_schema: "http"
+atom_replication_ro_es_base_url_host: "127.0.0.1"
+atom_replication_edit_es_base_url: "{{ atom_replication_edit_es_base_url_schema }}://{{ atom_replication_edit_es_base_url_host }}"
+atom_replication_ro_es_base_url: "{{ atom_replication_ro_es_base_url_schema }}://{{ atom_replication_ro_es_base_url_host }}"
+
 atom_replication_edit_es_index: "atom-edit"
 atom_replication_ro_es_index: "atom-ro"
 
