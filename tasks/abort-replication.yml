@@ -13,15 +13,15 @@
 #  avoid problems in the read-only site. This file includes tasks to start services stopped when 
 #  running the replicastion script
 
-# The nginx service on AtoM edit host was stopped previously, so the service is going to be
+# The nginx service on AtoM read-only host was stopped previously, so the service is going to be
 # started before aborting the replication
-- name: "Restart nginx server on AtoM edit host"
+- name: "Restart nginx server on AtoM read-only host"
   become: "yes"
   service:
     name: "nginx"
     state: "restarted"
   when:
-    - inventory_hostname == atom_replication_edit_atom_host|string
+    - inventory_hostname == atom_replication_ro_atom_host|string
 
 - name: "Send abort signal when some task has failed"
   shell: /bin/false

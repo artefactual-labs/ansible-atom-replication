@@ -37,8 +37,8 @@
     - "install-replication"
     - "configure-es-backup"
 
-## Stop nginx service in AtoM edit host
-- name: "Stop nginx server on AtoM edit host"
+## Stop nginx service in AtoM read-only host
+- name: "Stop nginx server on AtoM read-only host"
   become: "yes"
   service:
     name: "nginx"
@@ -46,7 +46,7 @@
   notify:
     - "restart nginx"
   when:
-    - inventory_hostname == atom_replication_edit_atom_host|string
+    - inventory_hostname == atom_replication_ro_atom_host|string
   tags:
     - "es-clone-index"
     - "es-ro-restore"
