@@ -87,6 +87,7 @@
       settings:
         location: "{{ atom_replication_es_backup_repo_path }}"
     body_format: "json"
+    use_proxy: false
 
 - name: "restart elasticsearch"
   become: "yes"

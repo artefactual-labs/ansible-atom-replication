@@ -22,6 +22,7 @@
       ignore_unavailable: "true"
     body_format: "json"
     timeout: 600
+    use_proxy: false
 
 - name: "create tarball of the ES repo"
   archive:

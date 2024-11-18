@@ -32,6 +32,7 @@
   uri:
     url: "{{ atom_replication_ro_es_base_url }}:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}/_close"
     method: "POST"
+    use_proxy: false
   ignore_errors: yes   # Fails when the index doesn't exist
 
 - name: "Restore ES snapshot"
@@ -46,8 +47,10 @@
       rename_replacement: "{{ atom_replication_ro_es_index }}"
     body_format: "json"
     timeout: 1800
+    use_proxy: false
 
 - name: "Open ES index on ES read-only server"
   uri:
     url: "{{ atom_replication_ro_es_base_url }}:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}/_open"
     method: "POST"
+    use_proxy: false
