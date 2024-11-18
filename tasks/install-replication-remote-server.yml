@@ -68,7 +68,6 @@
     src: "{{ item }}"
     dest: "{{ atom_replication_ansible_remote_path }}/{{ item }}"
   loop:
-    - "ansible.cfg"
     - "replication.yml"
     - "requirements.yml"
 
@@ -115,6 +114,13 @@
   template:
     src: "hosts.j2"
     dest: "{{ atom_replication_ansible_remote_path }}/hosts"
+
+- name: "Create ansible.cfg file on ansible host"
+  become: "yes"
+  become_user: "{{ atom_replication_ansible_remote_user }}"
+  template:
+    src: "ansible.cfg.j2"
+    dest: "{{ atom_replication_ansible_remote_path }}/ansible.cfg"
 
 - name: "Create replication script on ansible host"
   become: "no"
