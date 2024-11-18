@@ -4,6 +4,7 @@
   uri:
     url: "{{ atom_replication_edit_es_base_url }}:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}"
     method: "DELETE"
+    use_proxy: false
   ignore_errors: True
 
 - name: "Install curl and jq packages on elasticsearch server"
@@ -27,6 +28,7 @@
     method: "PUT"
     body_format: "json"
     body: "{{ __edit_es_index_mapping.stdout | from_json }}"
+    use_proxy: false
 
 - name: "Disable ES replication and refresh interval, tune translog on read-only index"
   uri:
@@ -40,6 +42,7 @@
       refresh_interval: -1
       translog.durability: "async"
       translog.flush_threshold_size: "1024MB"
+    use_proxy: false
 
 - name: "Reindex the edit index on the new read-only index"
   uri:
@@ -56,6 +59,7 @@
         size: 10000
       dest:
         index: "{{ atom_replication_ro_es_index }}"
+    use_proxy: false
 
 - name: "Restore default values on read-only index"
   uri:
@@ -68,3 +72,4 @@
       refresh_interval: null
       translog.durability: "request"
       translog.flush_threshold_size: "512MB"
+    use_proxy: false
