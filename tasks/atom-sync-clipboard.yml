@@ -6,6 +6,7 @@
     name: "{{ atom_replication_ro_db_name }}"
     state: "import"
     target: "{{ atom_replication_ro_mysql_snapshots_dir }}/mysql_ro_table_clipboard_save_item.sql"
+    login_unix_socket: "{{ atom_replication_ro_mysql_unix_socket }}"
 
 - name: "read user snapshot as CSV"
   read_csv:
