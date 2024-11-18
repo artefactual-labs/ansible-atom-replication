@@ -114,7 +114,7 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 | `atom_replication_snapshot_es_user` | elasticsearch | User for Elasticsearch snapshots files |
 | `atom_replication_snapshot_es_group` | elasticsearch | Group for Elasticsearch snapshots files |
 | `atom_replication_ansible_remote_server` | `{{ atom_replication_edit_atom_host }}`  | Hostname in your ansible local inventory for the server where the ansible environment is going to be installed (`ansible-run-server`). Only used with the `install-replication` tag, and additionaly we need to pass this variable as an extra-variable when running the role with the `install-replication` tag |
-| `atom_replication_ansible_remote_user` | artefactual | Ansible ssh user to connect to the `ansible-run-server`. Only used with the `install-replication` tag |
+| `atom_replication_ansible_remote_user` | artefactual | Ansible user to run the playbook on `ansible-run-server`, it can be different than the ssh user in inventory to install the role in remote server. Only used with the `install-replication` tag |
 | `atom_replication_ansible_remote_path` | /home/artefactual/atom-replication | Directory on the `ansible-run-server` where the replication ansible environment is going to be installed |
 | `atom_replication_ansible_remote_cron_enabled` | False | Variable to enable the crontab job for the replication on the `ansible-run-server` server |
 | `atom_replication_ansible_remote_cron_minute` | 0 | Minute field in the cron job to run the replication script. Only used when `atom_replication_ansible_remote_cron_enabled=True` |

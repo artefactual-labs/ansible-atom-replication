@@ -9,6 +9,7 @@
 
 - name: "Create ansible-playbook logs directory"
   become: "yes"
+  become_user: "{{ atom_replication_ansible_remote_user }}"
   file:
     path: "{{ atom_replication_ansible_remote_path }}/replication-logs"
     state: "directory"
@@ -22,7 +23,8 @@
     state: "present"
 
 - name: "Create ansible virtualenv on ansible host (Ubuntu)"
-  become: "no"
+  become: "yes"
+  become_user: "{{ atom_replication_ansible_remote_user }}"
   pip:
     name: "ansible"
     version: "4.10"
@@ -32,7 +34,8 @@
     - ansible_os_family == "Debian"
 
 - name: "Create ansible virtualenv on ansible host (CentOS/RedHat 7)"
-  become: "no"
+  become: "yes"
+  become_user: "{{ atom_replication_ansible_remote_user }}"
   pip:
     name: "pip"
     extra_args: "--upgrade"
@@ -43,7 +46,8 @@
     - ansible_distribution_major_version | int < 8
 
 - name: "Create ansible virtualenv on ansible host (CentOS/RedHat > 7)"
-  become: "no"
+  become: "yes"
+  become_user: "{{ atom_replication_ansible_remote_user }}"
   pip:
     name: "pip"
     extra_args: "--upgrade"
@@ -54,7 +58,8 @@
     - ansible_distribution_major_version | int >= 8
 
 - name: "Install ansible in virtualenv on ansible host"
-  become: "no"
+  become: "yes"
+  become_user: "{{ atom_replication_ansible_remote_user }}"
   pip:
     name: "ansible"
     version: "4.10"
@@ -63,7 +68,8 @@
     - ansible_os_family == "RedHat"
 
 - name: "Copy ansible files to replication directory on ansible host"
-  become: "no"
+  become: "yes"
+  become_user: "{{ atom_replication_ansible_remote_user }}"
   copy:
     src: "{{ item }}"
     dest: "{{ atom_replication_ansible_remote_path }}/{{ item }}"
@@ -72,7 +78,8 @@
     - "requirements.yml"
 
 - name: "Copy config file to replication directory on ansible host"
-  become: "no"
+  become: "yes"
+  become_user: "{{ atom_replication_ansible_remote_user }}"
   copy: 
     src: "{{ item }}"
     dest: "{{ atom_replication_ansible_remote_path }}/config.yml"
@@ -110,7 +117,8 @@
 # - hosts 
 
 - name: "Create ansible inventory file on ansible host"
-  become: "no"
+  become: "yes"
+  become_user: "{{ atom_replication_ansible_remote_user }}"
   template:
     src: "hosts.j2"
     dest: "{{ atom_replication_ansible_remote_path }}/hosts"
@@ -123,7 +131,8 @@
     dest: "{{ atom_replication_ansible_remote_path }}/ansible.cfg"
 
 - name: "Create replication script on ansible host"
-  become: "no"
+  become: "yes"
+  become_user: "{{ atom_replication_ansible_remote_user }}"
   template:
     src: "replication.sh.j2"
     dest: "{{ atom_replication_ansible_remote_path }}/site-replication.sh"
@@ -132,6 +141,8 @@
 
 # Create ed25519 key
 - name: "Create ed25519 for user {{ atom_replication_ansible_remote_user }} on ansible host"
+  become: "yes"
+  become_user: "{{ atom_replication_ansible_remote_user }}"
   user:
     name: "{{ atom_replication_ansible_remote_user }}"
     generate_ssh_key: "yes"
@@ -140,7 +151,8 @@
   register: "__ansible_host_ssh_key"
 
 - name: "Use StrictHostKeyChecking=no ssh option for {{ atom_replication_ansible_remote_user }} on ansible host"
-  become: "no"
+  become: "yes"
+  become_user: "{{ atom_replication_ansible_remote_user }}"
   lineinfile:
     create: "yes"
     path: ".ssh/config"
@@ -274,7 +286,8 @@
 
 # Download role with ansible-galaxy
 - name: "Update roles with ansible-galaxy on ansible host"
-  become: "no"
+  become: "yes"
+  become_user: "{{ atom_replication_ansible_remote_user }}"
   command:  venv-ansible/bin/ansible-galaxy install -f -p roles/ -r requirements.yml
   args:
      chdir: "{{ atom_replication_ansible_remote_path }}"
