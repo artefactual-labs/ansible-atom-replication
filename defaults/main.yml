@@ -9,7 +9,6 @@ atom_replication_ro_mysql_host: "localhost"
 atom_replication_edit_es_host: "localhost"
 atom_replication_ro_es_host: "localhost"
 
-
 # Ansible ssh usernames (Ansible ssh host in Ansible inventory)
 atom_replication_edit_atom_ansible_user: "artefactual"
 atom_replication_ro_atom_ansible_user: "{{ atom_replication_edit_atom_ansible_user }}"
@@ -25,6 +24,9 @@ atom_replication_ro_es_ansible_host: "{{ atom_replication_edit_atom_ansible_host
 atom_replication_edit_es_ansible_host: "{{ atom_replication_edit_atom_ansible_host }}"
 atom_replication_ro_mysql_ansible_host: "{{ atom_replication_edit_atom_ansible_host }}"
 atom_replication_edit_mysql_ansible_host: "{{ atom_replication_edit_atom_ansible_host }}"
+
+# Ansible settings for ansible.cfg file in ansible-run-server
+atom_replication_ansible_cfg_timeout: 60
 
 # Needed to rsync uploads and downloads from AtoM edit host to AtoM read-only host
 atom_replication_edit_ssh_pubkey_file: "/home/{{ atom_replication_edit_atom_ansible_user }}/.ssh/id_ed25519"

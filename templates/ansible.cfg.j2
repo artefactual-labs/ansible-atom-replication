@@ -1,7 +1,7 @@
 [defaults]
 allow_world_readable_tmpfiles = True
 inventory=hosts
-timeout = 60
+timeout = {{ atom_replication_ansible_cfg_timeout }}
 callbacks_enabled = ansible.posix.profile_tasks
 nocows=1
 roles_path=roles:external-roles:../roles
