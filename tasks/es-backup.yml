@@ -27,10 +27,12 @@
   archive:
     path: "{{ atom_replication_es_backup_repo_path }}/"
     dest: "{{ atom_replication_edit_es_snapshots_dir }}/es-snapshot.tgz"
+    owner: "{{ ansible_ssh_user }}"
+    mode: "0640"
 
-- name: "Fetch ES backup on ansible host"
-  fetch:
+- name: "Copy ES backup to ansible host (with synchronize)"
+  synchronize:
+    mode: pull
     src: "{{ atom_replication_edit_es_snapshots_dir }}/es-snapshot.tgz"
     dest: "{{ atom_replication_ansible_host_snapshots_dir }}/es-snapshot.tgz"
-    flat: "true"
-  no_log: true
+  become: no

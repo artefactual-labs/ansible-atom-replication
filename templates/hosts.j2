@@ -2,6 +2,6 @@
 {%   if host.ansible_host == atom_replication_ansible_remote_server -%}
 {{ host.ansible_host }}	ansible_connection=local
 {%   else -%}
-{{ host.ansible_host }}	ansible_ssh_host={{ host.ansible_ssh_hostname }} ansible_ssh_user={{ host.ansible_ssh_username }}
+{{ host.ansible_host }}	ansible_ssh_host={{ host.ansible_ssh_hostname }} ansible_host={{ host.ansible_ssh_hostname }} ansible_ssh_user={{ host.ansible_ssh_username }}
 {%   endif %}
 {% endfor %}
