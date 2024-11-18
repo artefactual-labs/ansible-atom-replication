@@ -127,8 +127,14 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 | `atom_replication_ansible_remote_cron_file` | replicate-atom | Cron job filename to run the replication script. When using more than one replication script in the same `ansible-run-server`, please ensure it is different for every script. Only used when `atom_replication_ansible_remote_cron_enabled=True` |
 | `atom_replication_ansible_remote_cron_mailto` | | Email address to sent the replication script output. Only used when `atom_replication_ansible_remote_cron_enabled=True` |
 | `atom_replication_es_port` | 9200 | Elasticsearch tcp port used to connect to both elasticsearch servers |
+| `atom_replication_edit_es_base_url_schema` | http | Base url schema for edit elasticsearch url |
+| `atom_replication_ro_es_base_url_schema` | http | Base url schema for read-only elasticsearch url |
+| `atom_replication_edit_es_base_url_host` | 127.0.0.1 | Base url host for edit elasticsearch url |
+| `atom_replication_ro_es_base_url_host` | 127.0.0.1 | Base url host for read-only elasticsearch url |
+| `atom_replication_edit_es_base_url` | {{ atom_replication_edit_es_base_url_schema }}://{{ atom_replication_edit_es_base_url_host }} | Elasticsearch edit base URL, by default it is built using the other 2 elasticsearch schema variables |
+| `atom_replication_ro_es_base_url` | {{ atom_replication_ro_es_base_url_schema }}://{{ atom_replication_ro_es_base_url_host }} | Elasticsearch edit base URL, by default it is built using the other 2 elasticsearch schema variables |
 | `atom_replication_edit_es_index` | atom-edit  | AtoM Elasticsearch index name on AtoM edit site |
-| `atom_replication_edit_ro_index` | atom-ro  | AtoM Elasticsearch index name on AtoM read-only site |
+| `atom_replication_ro_es_index` | atom-ro  | AtoM Elasticsearch index name on AtoM read-only site |
 | `atom_replication_es_repo_name` | backup-repo | Elasticsearch repo name to take and restore the backups |
 | `atom_replication_es_snapshot_name` | backup-repo | Elasticsearch snapshot name to take and restore the backups |
 | `atom_replication_es_backup_repo_path` | /var/lib/elasticsearch/backup-repo | Elasticsearch repo path to take and restore the backups |
