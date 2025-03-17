@@ -52,6 +52,17 @@
     - "es-ro-restore"
     - "mysql-restore-backup"
 
+## Wait for 1 minute after stopping nginx (to avoid bots opening the ES index)
+- name: "Wait for 1 minute after stopping nginx"
+  become: "yes"
+  wait_for:
+    timeout: 60
+  when: inventory_hostname == atom_replication_ro_atom_host | string
+  tags:
+    - "es-clone-index"
+    - "es-ro-restore"
+    - "mysql-restore-backup"
+
 ## Elasticsearch backup tasks
 - import_tasks: "es-backup.yml"
   when:
