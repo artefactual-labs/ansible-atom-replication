@@ -1,6 +1,12 @@
 ---
 # tasks file for atom-replication-role
 
+- name: "Ensure atom_replication_os_packages are installed in all hosts"
+  become: "yes"
+  package:
+    name: "{{ atom_replication_os_packages }}"
+    state: present
+
 - name: "Email notification: Define playbook status"
   set_fact:
     _playbook_status: "ERROR"
