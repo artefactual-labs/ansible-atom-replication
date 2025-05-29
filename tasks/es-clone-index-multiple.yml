@@ -1,0 +1,81 @@
+---
+
+- name: "Delete read-only indices"
+  uri:
+    url: "{{ atom_replication_edit_es_base_url }}:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}_{{ item }}"
+    method: "DELETE"
+    use_proxy: false
+  ignore_errors: True
+  loop: "{{ __indices_suffix_list }}"
+
+- name: "Install curl and jq packages on elasticsearch server"
+  become: "yes"
+  package:
+    name:
+      - curl
+      - jq
+    state: "present"
+
+- name: "Get the edit indices mapping"
+  shell: 
+    curl -s {{ atom_replication_edit_es_base_url }}:{{ atom_replication_es_port }}/{{ atom_replication_edit_es_index }}_{{ item }} | jq '."{{ atom_replication_edit_es_index }}_{{ item }}" | del(.settings.index.provided_name, .settings.index.creation_date, .settings.index.uuid, .settings.index.version)' 
+  register: "__edit_es_index_mapping"
+  loop: "{{ __indices_suffix_list }}"
+
+- name: "Create the read-only indices with the edit mapping"
+  uri:
+    url: "{{ atom_replication_ro_es_base_url }}:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}_{{ item }}"
+    headers:
+      Content-Type: "application/json"
+    method: "PUT"
+    body_format: "json"
+    body: "{{ (__edit_es_index_mapping.results | selectattr('item', 'equalto', item) | map(attribute='stdout') | first) | from_json }}"
+    use_proxy: false
+  loop: "{{ __indices_suffix_list }}"
+
+- name: "Disable ES replication and refresh interval, tune translog on read-only index"
+  uri:
+    url: "{{ atom_replication_edit_es_base_url }}:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}_{{ item }}/_settings"
+    headers:
+      Content-Type: "application/json"
+    method: "PUT"
+    body_format: "json"
+    body:
+      number_of_replicas: 0
+      refresh_interval: -1
+      translog.durability: "async"
+      translog.flush_threshold_size: "1024MB"
+    use_proxy: false
+  loop: "{{ __indices_suffix_list }}"
+
+- name: "Reindex the edit indices on the new read-only indices"
+  uri:
+    url: "{{ atom_replication_edit_es_base_url }}:{{ atom_replication_es_port }}/_reindex"
+    timeout: 3600
+    headers:
+      Content-Type: "application/json"
+    method: "POST"
+    body_format: "json"
+    body:
+      conflicts: "proceed"
+      source:
+        index: "{{ atom_replication_edit_es_index }}_{{ item }}"
+        size: 10000
+      dest:
+        index: "{{ atom_replication_ro_es_index }}_{{ item }}"
+    use_proxy: false
+  loop: "{{ __indices_suffix_list }}"
+
+- name: "Restore default values on read-only index"
+  uri:
+    url: "{{ atom_replication_edit_es_base_url }}:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}_{{ item }}/_settings"
+    headers:
+      Content-Type: "application/json"
+    method: "PUT"
+    body_format: "json"
+    body:
+      refresh_interval: null
+      translog.durability: "request"
+      translog.flush_threshold_size: "512MB"
+    use_proxy: false
+  loop: "{{ __indices_suffix_list }}"

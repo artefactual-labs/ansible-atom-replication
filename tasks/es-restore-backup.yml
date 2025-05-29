@@ -28,14 +28,27 @@
     group: "{{ atom_replication_snapshot_es_group }}"
     remote_src: true
 
-- name: "Close index to avoid problems while restoring the backup on ES read-only server"
+- name: "Close index to avoid problems while restoring the backup on ES read-only server - Single Index"
   uri:
     url: "{{ atom_replication_ro_es_base_url }}:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}/_close"
     method: "POST"
     use_proxy: false
   ignore_errors: yes   # Fails when the index doesn't exist
+  when:
+    - not atom_replication_es_multiple_indices|bool
 
-- name: "Restore ES snapshot"
+- name: "Close indices to avoid problems while restoring the backup on ES read-only server - Multiple Indices"
+  uri:
+    url: "{{ atom_replication_ro_es_base_url }}:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}_{{ item }}/_close"
+    method: "POST"
+    use_proxy: false
+  ignore_errors: yes   # Fails when the index doesn't exist
+  loop: "{{ __indices_suffix_list }}"
+  when:
+    - atom_replication_es_multiple_indices|bool
+
+
+- name: "Restore ES snapshot - Single Index"
   uri:
     url: "{{ atom_replication_ro_es_base_url }}:{{ atom_replication_es_port }}/_snapshot/{{ atom_replication_es_repo_name }}/{{ atom_replication_es_snapshot_name }}/_restore?wait_for_completion=true"
     method: POST
@@ -48,9 +61,43 @@
     body_format: "json"
     timeout: 1800
     use_proxy: false
+  when:
+    - not atom_replication_es_multiple_indices|bool
 
-- name: "Open ES index on ES read-only server"
+# See: 
+# https://www.elastic.co/docs/reference/elasticsearch/curator/option_rename_replacement
+# https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-snapshot-restore
+# Restore all edit indices renaming the index prefix to the read-only one
+- name: "Restore ES snapshot - Multiple Indices"
+  uri:
+    url: "{{ atom_replication_ro_es_base_url }}:{{ atom_replication_es_port }}/_snapshot/{{ atom_replication_es_repo_name }}/{{ atom_replication_es_snapshot_name }}/_restore?wait_for_completion=true"
+    method: POST
+    body:
+      indices: "{{ __indices_string_edit }}"
+      rename_pattern: "{{ atom_replication_edit_es_index }}(.+)" # Get all after atom_replication_edit_es_index prefix ans save as $1
+      ignore_unavailable: false
+      include_global_state: false
+      rename_replacement: "{{ atom_replication_ro_es_index }}$1" # Rename atom_replication_edit_es_index prefix with the atom_replication_ro_es_index prefix
+    body_format: "json"
+    timeout: 1800
+    use_proxy: false
+  when:
+    - atom_replication_es_multiple_indices|bool
+
+
+- name: "Open ES index on ES read-only server - Single index"
   uri:
     url: "{{ atom_replication_ro_es_base_url }}:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}/_open"
     method: "POST"
     use_proxy: false
+  when:
+    - not atom_replication_es_multiple_indices|bool
+
+- name: "Open ES indices on ES read-only server - Multiple indices"
+  uri:
+    url: "{{ atom_replication_ro_es_base_url }}:{{ atom_replication_es_port }}/{{ atom_replication_ro_es_index }}_{{ item }}/_open"
+    method: "POST"
+    use_proxy: false
+  loop: "{{ __indices_suffix_list }}"
+  when:
+    - atom_replication_es_multiple_indices|bool

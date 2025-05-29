@@ -76,6 +76,7 @@ atom_replication_ro_es_base_url_host: "127.0.0.1"
 atom_replication_edit_es_base_url: "{{ atom_replication_edit_es_base_url_schema }}://{{ atom_replication_edit_es_base_url_host }}"
 atom_replication_ro_es_base_url: "{{ atom_replication_ro_es_base_url_schema }}://{{ atom_replication_ro_es_base_url_host }}"
 
+# AtoM indices or indices prefixes for AtoM >= 2.9
 atom_replication_edit_es_index: "atom-edit"
 atom_replication_ro_es_index: "atom-ro"
 
@@ -83,6 +84,9 @@ atom_replication_es_repo_name: "backup-repo"
 atom_replication_es_snapshot_name: "backup-repo"
 
 atom_replication_es_backup_repo_path: "/var/lib/elasticsearch/backup-repo"
+
+# AtoM >= 2.9 use multiple indices instead a single one
+atom_replication_es_multiple_indices: False
 
 # MySQL settings
 atom_replication_edit_db_name: "atom-edit"
@@ -114,6 +118,12 @@ atom_replication_ro_uploads_path: "{{ atom_replication_ro_path }}/uploads/"
 # AtoM synchronize uploads and downloads directories with rsync (Optional)
 atom_replication_synchronize_uploads_dir: False
 atom_replication_synchronize_downloads_dir: False
+
+# Nginx settings
+
+# In AtoM >= 2.9 nginx stop can be skipped because ES indices are not opened in every AtoM query
+# You can set False to skip nginx stop
+atom_replication_nginx_stop_service: True
 
 # Nginx users
 atom_replication_ro_nginx_user: "{% if ansible_os_family == 'RedHat' %}nginx{% elif ansible_os_family == 'Debian' %}www-data{% endif %}"

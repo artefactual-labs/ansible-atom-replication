@@ -1,2 +1,15 @@
 ---
 # vars file for atom-replication-role
+
+__indices_suffix_list:
+  - "qubitactor"
+  - "qubitrepository"
+  - "qubitaip"
+  - "qubitaccession"
+  - "qubitfunctionobject"
+  - "qubitinformationobject"
+  - "qubitterm"
+
+__indices_string_edit: "{{ atom_replication_edit_es_index }}_qubitactor,{{ atom_replication_edit_es_index }}_qubitrepository,{{ atom_replication_edit_es_index }}_qubitaip,{{ atom_replication_edit_es_index }}_qubitaccession,{{ atom_replication_edit_es_index }}_qubitfunctionobject,{{ atom_replication_edit_es_index }}_qubitinformationobject,{{ atom_replication_edit_es_index }}_qubitterm"
+
+__indices_string_ro: "{{ atom_replication_ro_es_index }}_qubitactor,{{ atom_replication_ro_es_index }}_qubitrepository,{{ atom_replication_ro_es_index }}_qubitaip,{{ atom_replication_ro_es_index }}_qubitaccession,{{ atom_replication_ro_es_index }}_qubitfunctionobject,{{ atom_replication_ro_es_index }}_qubitinformationobject,{{ atom_replication_ro_es_index }}_qubitterm"

@@ -47,6 +47,7 @@
     - "restart nginx"
   when:
     - inventory_hostname == atom_replication_ro_atom_host|string
+    - atom_replication_nginx_stop_service|bool
   tags:
     - "es-clone-index"
     - "es-ro-restore"
@@ -57,7 +58,9 @@
   become: "yes"
   wait_for:
     timeout: 60
-  when: inventory_hostname == atom_replication_ro_atom_host | string
+  when:
+    - inventory_hostname == atom_replication_ro_atom_host | string
+    - atom_replication_nginx_stop_service|bool
   tags:
     - "es-clone-index"
     - "es-ro-restore"
@@ -100,11 +103,21 @@
   tags:
     - "always"
 
-# When edit and ro indices in the same ES server
+# When edit and ro indices in the same ES server --> just clone indices
 - import_tasks: "es-clone-index.yml"
   when:
     - inventory_hostname == atom_replication_edit_es_host|string
     - atom_replication_edit_es_host|string == atom_replication_ro_es_host|string
+    - not atom_replication_es_multiple_indices|bool
+  tags:
+    - "es-clone-index"
+    - "es-ro-restore"
+
+- import_tasks: "es-clone-index-multiple.yml"
+  when:
+    - inventory_hostname == atom_replication_edit_es_host|string
+    - atom_replication_edit_es_host|string == atom_replication_ro_es_host|string
+    - atom_replication_es_multiple_indices|bool
   tags:
     - "es-clone-index"
     - "es-ro-restore"
@@ -203,6 +216,7 @@
     state: "started"
   when:
     - inventory_hostname == atom_replication_edit_atom_host|string
+    - atom_replication_nginx_stop_service|bool
 
 ## Set playbook status for email notification
 - name: "Email notification: Set playbook status as SUCCESS"

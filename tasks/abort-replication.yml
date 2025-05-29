@@ -22,6 +22,7 @@
     state: "restarted"
   when:
     - inventory_hostname == atom_replication_ro_atom_host|string
+    - atom_replication_nginx_stop_service|bool
 
 - name: "Send abort signal when some task has failed"
   shell: /bin/false

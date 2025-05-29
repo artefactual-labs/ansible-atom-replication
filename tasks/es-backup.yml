@@ -13,7 +13,7 @@
     owner: "{{ atom_replication_snapshot_es_user }}"
     group: "{{ atom_replication_snapshot_es_group }}"
 
-- name: "Take atom index snapshot on ES edit server"
+- name: "Take atom index snapshot on ES edit server - Single index"
   uri:
     url: "{{ atom_replication_edit_es_base_url }}:{{ atom_replication_es_port }}/_snapshot/{{ atom_replication_es_repo_name }}/{{ atom_replication_es_snapshot_name }}?wait_for_completion=true"
     method: "PUT"
@@ -23,6 +23,21 @@
     body_format: "json"
     timeout: 600
     use_proxy: false
+  when:
+    - not atom_replication_es_multiple_indices|bool
+
+- name: "Take atom index snapshot on ES edit server - Multiple indices"
+  uri:
+    url: "{{ atom_replication_edit_es_base_url }}:{{ atom_replication_es_port }}/_snapshot/{{ atom_replication_es_repo_name }}/{{ atom_replication_es_snapshot_name }}?wait_for_completion=true"
+    method: "PUT"
+    body:
+      indices: "{{ __indices_string_edit }}"
+      ignore_unavailable: "true"
+    body_format: "json"
+    timeout: 600
+    use_proxy: false
+  when:
+    - atom_replication_es_multiple_indices|bool
 
 - name: "create tarball of the ES repo"
   archive:
