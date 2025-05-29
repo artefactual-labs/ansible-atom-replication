@@ -67,6 +67,7 @@ The OS tested are:
 * Ubuntu 18
 * Ubuntu 20
 * CentOS 7
+* Rocky 9
 
 You need ansible >= 2.10. The recommended version is 2.12.5. It is because the role uses the `mysql_query` module and it doesn't exist in ansible<=2.9. The following collections must be installed:
 
@@ -127,6 +128,7 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 | `atom_replication_ansible_remote_cron_file` | replicate-atom | Cron job filename to run the replication script. When using more than one replication script in the same `ansible-run-server`, please ensure it is different for every script. Only used when `atom_replication_ansible_remote_cron_enabled=True` |
 | `atom_replication_ansible_remote_cron_mailto` | | Email address to sent the replication script output. Only used when `atom_replication_ansible_remote_cron_enabled=True` |
 | `atom_replication_es_port` | 9200 | Elasticsearch tcp port used to connect to both elasticsearch servers |
+| `atom_replication_es_multiple_indices` | False | Boolean variable that must be True in AtoM >= 2.9 (because AtoM >= 2.9 uses multiple indices) |
 | `atom_replication_edit_es_base_url_schema` | http | Base url schema for edit elasticsearch url |
 | `atom_replication_ro_es_base_url_schema` | http | Base url schema for read-only elasticsearch url |
 | `atom_replication_edit_es_base_url_host` | 127.0.0.1 | Base url host for edit elasticsearch url |
@@ -151,6 +153,7 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 |`atom_replication_ro_uploads_path` | `{{ atom_replication_ro_path }}/uploads/` | Uploads directory on read-only AtoM server, this is the destination on the synchronization from the edit AtoM server uploads directory when `atom_replication_synchronize_uploads_dir=True`. This variable always must end in "/" character |
 | `atom_replication_synchronize_downloads_dir` | False | Boolean variable that enables the synchronization of the downloads directories |
 | `atom_replication_synchronize_uploads_dir` | False | Boolean variable that enables the synchronization of the uploads directories |
+| `atom_replication_nginx_stop_service` | True | Boolean variable that stops nginx service, don't set as False when AtoM < 2.9. Must be 'True' in AtoM < 2.9 to avoid problems when restoring elasticsearch indice (any request can open the index and replication fails) |
 | `atom_replication_ro_nginx_user` | `{% if ansible_os_family == 'RedHat' %}nginx{% elif ansible_os_family == 'Debian' %}www-data{% endif %}` | Nginx user on the AtoM read-only  server. It is needed to run the php symfony commands |
 | `atom_replication_restore_sitetitle` | False | When variable is set to True the role will change the siteTitle on the read-only database, using the `atom_replication_ro_sitetitle` value |
 | `atom_replication_ro_sitetitle` | Read Only Site | String used as siteTitle in the setting_i18n table (read-only database) when `atom_replication_restore_sitetitle=True` |
@@ -263,6 +266,23 @@ For more details see the following 3 sample scenarios:
 1. [Single Server with all services and two AtoM sites](documentation/single-server-scenario.md)
 2. [Two servers with their own nginx, elasticsearch and MySQL services and a site on every server](documentation/two-servers-scenario.md)
 3. [Three servers: nginx server with the two AtoM sites, a MySQL server for both sites and an Elasticsearch server for both sites](documentation/three-servers-scenario.md)
+
+
+AtoM 2.9 Support
+----------------
+
+Note that AtoM 2.9 added changes in Elasticsearch. It uses multiple indices instead of a single index, please make sure you set:
+
+```
+atom_replication_es_multiple_indices: True
+```
+
+And optionally (by default the role will stop the nginx service), you can disable the nginx service stop when running the role with:
+
+```
+atom_replication_nginx_stop_service: False
+```
+
 
 License
 -------
