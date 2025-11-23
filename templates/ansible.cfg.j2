@@ -11,6 +11,7 @@ force_handlers = True
 pipelining = true
 #ssh_args = -o ForwardAgent=yes -o ControlMaster=auto -o ControlPersist=60s -o PreferredAuthentications=publickey -F ssh.config
 ssh_args = -o ForwardAgent=yes -o ControlMaster=auto -o ControlPersist=60s -o PreferredAuthentications=publickey
+interpreter_python = /usr/bin/python3
 
 [sudo_become_plugin]
 # This is needed to properly use "git clone" with the forwarded ssh key

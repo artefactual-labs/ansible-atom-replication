@@ -1,0 +1,91 @@
+---
+
+# Servers (Ansible host field in Ansible inventory)
+atom_replication_edit_atom_host: "atom-edit-server"
+atom_replication_ro_atom_host: "atom-ro-server"
+atom_replication_edit_mysql_host: "atom-edit-server"
+atom_replication_ro_mysql_host: "atom-ro-server"
+atom_replication_edit_es_host: "atom-edit-server"
+atom_replication_ro_es_host: "atom-ro-server"
+
+
+# Ansible ssh IP addresses/hostnames (Ansible ssh host in Ansible inventory)
+atom_replication_edit_atom_ansible_host: "atom-edit-server"
+atom_replication_edit_mysql_ansible_host: "atom-edit-server"
+atom_replication_edit_es_ansible_host: "atom-edit-server"
+atom_replication_ro_atom_ansible_host: "atom-ro-server"
+atom_replication_ro_mysql_ansible_host: "atom-ro-server"
+atom_replication_ro_es_ansible_host: "atom-ro-server"
+
+# Install role in remote server (Optional).
+# Use "install-replication" tag to deploy the replication script in the remote server
+atom_replication_ansible_remote_server: "atom-edit-server"
+atom_replication_ansible_remote_user: "artefactual"
+atom_replication_ansible_remote_path: "/usr/share/nginx/atom-replication"
+
+# Ansible ssh usernames (Ansible ssh host in Ansible inventory)
+atom_replication_edit_atom_ansible_user: "{{ atom_replication_ansible_remote_user }}"
+atom_replication_edit_mysql_ansible_user: "{{ atom_replication_ansible_remote_user }}"
+atom_replication_edit_es_ansible_user: "{{ atom_replication_ansible_remote_user }}"
+atom_replication_ro_atom_ansible_user: "{{ atom_replication_ansible_remote_user }}"
+atom_replication_ro_mysql_ansible_user: "{{ atom_replication_ansible_remote_user }}"
+atom_replication_ro_es_ansible_user: "{{ atom_replication_ansible_remote_user }}"
+# ------------------------
+
+atom_replication_ansible_remote_cron_enabled: True
+atom_replication_ansible_remote_cron_minute: "23"
+atom_replication_ansible_remote_cron_hour: "3"
+atom_replication_ansible_remote_cron_day: "*"
+atom_replication_ansible_remote_cron_month: "*"
+atom_replication_ansible_remote_cron_weekday: "SAT"
+atom_replication_ansible_remote_cron_mailto: "atom25@arkthis.com"
+
+# Elasticsearch settings:
+atom_replication_edit_es_index: "atom"
+atom_replication_ro_es_index: "atom"
+
+# MySQL settings
+atom_replication_edit_db_name: "atom"
+atom_replication_ro_db_name: "atom"
+
+atom_replication_ro_backup_tables:
+  - access_log
+  - clipboard_save
+  - clipboard_save_item
+
+# AtoM source paths
+atom_replication_edit_path: "/usr/share/nginx/atom"
+atom_replication_ro_path: "/usr/share/nginx/atom"
+
+# Synchronize baseurl (Optional)
+# Check running: "select value from setting_i18n where id='124';" in both databases
+atom_replication_synchronize_baseurl: True
+atom_replication_edit_dnsname: "https://atom-edit.allhau.av-rd.com"
+atom_replication_ro_dnsname: "https://atom-ro.allhau.av-rd.com"
+
+# AtoM synchronize uploads and downloads directories with rsync (Optional)
+atom_replication_synchronize_uploads_dir: True
+atom_replication_synchronize_downloads_dir: True
+
+# AtoM downloads and uploads paths
+# NOTE: Ensure all paths ends in "/"
+atom_replication_edit_downloads_path: "{{ atom_replication_edit_path }}/downloads/"
+atom_replication_ro_downloads_path: "{{ atom_replication_ro_path }}/downloads/"
+atom_replication_edit_uploads_path: "{{ atom_replication_edit_path }}/uploads/"
+atom_replication_ro_uploads_path: "{{ atom_replication_ro_path }}/uploads/"
+
+# Delete read-only db clipboard save items that reference slugs which no longer exist (Optional)
+atom_replication_clipboard_delete_obsolete_items: True
+
+# Services to be restarted on AtoM read-only host after replication
+atom_replication_ro_nginx_restart_services:
+  - "memcached"
+  - "php8.3-fpm"
+  - "atom-worker"
+
+
+# Symfony commands to run on AtoM read-only host after replication
+# as nginx user and {{ atom_replication_ro_path }} path
+atom_replication_ro_nginx_symfony_commands:
+  - "cc"
+  - "tools:expire-data --older-than=$(date +'%Y-%m-%d' -d '-30 days') clipboard,job,access_log -f"

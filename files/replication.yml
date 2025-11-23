@@ -19,8 +19,7 @@
     - "{{ atom_replication_config }}"
 
   roles:
-
-    - role: "artefactual.atom-replication"
+    - role: "artefactual.ansible-atom-replication"
       become: "yes"
       tags:
         - "atom-replication"

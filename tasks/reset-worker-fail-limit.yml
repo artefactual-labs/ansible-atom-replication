@@ -1,0 +1,11 @@
+---
+# tasks file for atom-replication-role
+
+- name: "Reset atom-worker systemd fail-start counter"
+  become: "yes"
+  shell: systemctl reset-failed atom-worker
+  # Can't hurt to call this 'always' and at least once during 'install':
+  tags:
+    - "always"
+    - "install-replication"
+

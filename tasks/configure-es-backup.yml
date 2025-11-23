@@ -1,8 +1,8 @@
 ---
-- name: "install python-httplib2"
+- name: "install python3-httplib2"
   become: "yes"
   package:
-    name: "python-httplib2"
+    name: "python3-httplib2"
     state: "present"
 
 - name: "check elasticsearch version (edit)"

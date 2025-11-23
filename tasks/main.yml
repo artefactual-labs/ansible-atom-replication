@@ -6,6 +6,9 @@
   package:
     name: "{{ atom_replication_os_packages }}"
     state: present
+  tags:
+    - "always"
+    - "install-replication"
 
 - name: "Email notification: Define playbook status"
   set_fact:
@@ -200,6 +203,14 @@
   tags:
     - "atom-clipboard-delete-obsolete-items"
 
+## Assure atom-worker will (re)start properly, by resetting its fail-limit:
+- import_tasks: "reset-worker-fail-limit.yml"
+  when:
+    - inventory_hostname == atom_replication_ro_atom_host|string
+  tags:
+    - "atom-ro-restart-services-and-symfony-commands"
+
+## NOW restart the services:
 - import_tasks: "atom-ro-restart-services-and-symfony-commands.yml"
   when:
     - inventory_hostname == atom_replication_ro_atom_host|string
