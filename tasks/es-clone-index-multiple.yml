@@ -60,7 +60,7 @@
       conflicts: "proceed"
       source:
         index: "{{ atom_replication_edit_es_index }}_{{ item }}"
-        size: 10000
+        size: 500
       dest:
         index: "{{ atom_replication_ro_es_index }}_{{ item }}"
     use_proxy: false
