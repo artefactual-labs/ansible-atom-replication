@@ -3,7 +3,7 @@
 - name: "Run symfony commands on AtoM read-only host after replication"
   become: "yes"
   become_user: "{{ atom_replication_ro_nginx_user }}"
-  shell: "php symfony {{ item }}"
+  shell: "php -d memory_limit=-1 symfony {{ item }}"
   args:
     chdir: "{{ atom_replication_ro_path }}"
   loop: "{{ atom_replication_ro_nginx_symfony_commands }}"
