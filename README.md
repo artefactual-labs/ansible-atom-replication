@@ -128,6 +128,7 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 | `atom_replication_ansible_remote_cron_file` | replicate-atom | Cron job filename to run the replication script. When using more than one replication script in the same `ansible-run-server`, please ensure it is different for every script. Only used when `atom_replication_ansible_remote_cron_enabled=True` |
 | `atom_replication_ansible_remote_cron_mailto` | | Email address to sent the replication script output. Only used when `atom_replication_ansible_remote_cron_enabled=True` |
 | `atom_replication_es_port` | 9200 | Elasticsearch tcp port used to connect to both elasticsearch servers |
+| `atom_replication_es_clone_timeout` | 3600 | Elasticsearch clone timeout in seconds when using the same Elasticsearch server for read-only and edit |
 | `atom_replication_es_multiple_indices` | False | Boolean variable that must be True in AtoM >= 2.9 (because AtoM >= 2.9 uses multiple indices) |
 | `atom_replication_edit_es_base_url_schema` | http | Base url schema for edit elasticsearch url |
 | `atom_replication_ro_es_base_url_schema` | http | Base url schema for read-only elasticsearch url |

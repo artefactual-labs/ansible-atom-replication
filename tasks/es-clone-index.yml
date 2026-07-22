@@ -47,7 +47,7 @@
 - name: "Reindex the edit index on the new read-only index"
   uri:
     url: "{{ atom_replication_edit_es_base_url }}:{{ atom_replication_es_port }}/_reindex"
-    timeout: 3600
+    timeout: "{{ atom_replication_es_clone_timeout | default(3600) }}"
     headers:
       Content-Type: "application/json"
     method: "POST"
