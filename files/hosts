@@ -1,0 +1,2 @@
+atom-edit-server    ansible_ssh_host=atom-edit.allhau.av-rd.com    ansible_ssh_user=artefactual
+atom-ro-server      ansible_ssh_host=atom-ro.allhau.av-rd.com      ansible_ssh_user=artefactual

@@ -11,6 +11,6 @@
 - name: "Restart services on AtoM read-only host after replication"
   become: "yes"
   service:
-    name: "{{  item }}"
+    name: "{{ item }}"
     state: "restarted"
   loop: "{{ atom_replication_ro_nginx_restart_services }}"

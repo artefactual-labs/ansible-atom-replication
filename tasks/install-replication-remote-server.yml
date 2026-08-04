@@ -26,8 +26,11 @@
   become: "yes"
   become_user: "{{ atom_replication_ansible_remote_user }}"
   pip:
-    name: "ansible"
-    version: "4.10"
+    name:
+      - ansible>=9.2.0
+      #- mysqlclient
+      #version: "4.10"
+      #version: "9.2.0
     virtualenv: "{{ atom_replication_ansible_remote_path }}/venv-ansible"
     virtualenv_python: "python3"
   when:
@@ -84,9 +87,9 @@
     src: "{{ item }}"
     dest: "{{ atom_replication_ansible_remote_path }}/config.yml"
   with_first_found:
+    - "{{ atom_replication_config }}"
     - "host_vars/{{ inventory_hostname }}/{{ atom_replication_config }}"
     - "files/{{ inventory_hostname }}/{{ atom_replication_config }}"
-    - "{{ atom_replication_config }}"
   when:
     - inventory_hostname == atom_replication_ansible_remote_server|string
 
