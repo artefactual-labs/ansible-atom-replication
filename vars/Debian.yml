@@ -5,3 +5,4 @@ atom_replication_venv_packages:
   - "python3-virtualenv"
   - "virtualenv"
 
+atom_replication_python_httplib2_package: "{{ 'python3-httplib2' if ansible_distribution_major_version|int>=24 else 'python-httplib2' }}"

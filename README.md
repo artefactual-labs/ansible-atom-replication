@@ -66,6 +66,7 @@ The OS tested are:
 
 * Ubuntu 18
 * Ubuntu 20
+* Ubuntu 24
 * CentOS 7
 * Rocky 9
 
