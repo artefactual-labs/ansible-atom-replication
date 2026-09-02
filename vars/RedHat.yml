@@ -11,3 +11,4 @@ atom_replication_venv_packages_el9:
 
 atom_replication_venv_packages: "{{ atom_replication_venv_packages_el7 if ansible_distribution_major_version|int<8 else atom_replication_venv_packages_el9 }}"
 
+atom_replication_python_httplib2_package: "python-httplib2"

@@ -22,7 +22,7 @@
     name: "{{ atom_replication_venv_packages }}"
     state: "present"
 
-- name: "Create ansible virtualenv on ansible host (Ubuntu)"
+- name: "Create ansible virtualenv on ansible host (Ubuntu < 24)"
   become: "yes"
   become_user: "{{ atom_replication_ansible_remote_user }}"
   pip:
@@ -32,6 +32,19 @@
     virtualenv_python: "python3"
   when:
     - ansible_os_family == "Debian"
+    - ansible_distribution_major_version | int < 24
+
+- name: "Create ansible virtualenv on ansible host (Ubuntu >= 24)"
+  become: "yes"
+  become_user: "{{ atom_replication_ansible_remote_user }}"
+  pip:
+    name: "ansible"
+    version: "10.7.0"
+    virtualenv: "{{ atom_replication_ansible_remote_path }}/venv-ansible"
+    virtualenv_python: "python3"
+  when:
+    - ansible_os_family == "Debian"
+    - ansible_distribution_major_version | int >= 24
 
 - name: "Create ansible virtualenv on ansible host (CentOS/RedHat 7)"
   become: "yes"
