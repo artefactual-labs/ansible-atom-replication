@@ -1,5 +1,17 @@
 ---
 
+# Elasticsearch keeps repository metadata in cluster state. Unregistering and
+# re-registering the repository avoids stale state and snapshot name conflicts
+# across ES 5/7 runs when we reuse the same repository and snapshot names.
+- name: "Delete existing ES backup repository on ES edit server"
+  uri:
+    url: "{{ atom_replication_edit_es_base_url }}:{{ atom_replication_es_port }}/_snapshot/{{ atom_replication_es_repo_name }}"
+    method: "DELETE"
+    status_code:
+      - 200
+      - 404
+    use_proxy: false
+
 - name: "Delete ES backup repo directory on ES edit server"
   file:
     path: "{{ atom_replication_es_backup_repo_path }}"
@@ -12,6 +24,21 @@
     mode: "0775"
     owner: "{{ atom_replication_snapshot_es_user }}"
     group: "{{ atom_replication_snapshot_es_group }}"
+
+# Re-register the repository after the local path has been reset so the next
+# snapshot uses a clean filesystem-backed repository.
+- name: "Create ES backup repository on ES edit server"
+  uri:
+    url: "{{ atom_replication_edit_es_base_url }}:{{ atom_replication_es_port }}/_snapshot/{{ atom_replication_es_repo_name }}"
+    method: "PUT"
+    body:
+      type: "fs"
+      settings:
+        location: "{{ atom_replication_es_backup_repo_path }}"
+    body_format: "json"
+    status_code:
+      - 200
+    use_proxy: false
 
 - name: "Take atom index snapshot on ES edit server - Single index"
   uri:
